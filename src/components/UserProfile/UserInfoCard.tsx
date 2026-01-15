@@ -15,24 +15,24 @@ export default function UserInfoCard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
-  const [bio, setBio] = useState("");
+  // const [bio, setBio] = useState(""); // Removido pois não é usado
 
   useEffect(() => {
     if (user) {
       const nameParts = user.name ? user.name.split(" ") : ["", ""];
       setFirstName(nameParts[0]);
       setLastName(nameParts.slice(1).join(" "));
-      setPhone(user.phone || ""); // Carregar telefone
-      // setBio(user.bio || "");
+      setPhone(user.phone || ""); 
+      // setBio(user.bio || ""); 
     }
   }, [user]);
 
   const handleSave = async () => {
     try {
       const fullName = `${firstName} ${lastName}`.trim();
-      await updateUser({
+      await updateUser({ 
         name: fullName,
-        phone: phone // Enviar telefone
+        phone: phone 
       });
       closeModal();
     } catch (error) {
@@ -157,9 +157,9 @@ export default function UserInfoCard() {
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input
-                      type="text"
-                      value={phone}
+                    <Input 
+                      type="text" 
+                      value={phone} 
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+55 11 99999-9999"
                     />

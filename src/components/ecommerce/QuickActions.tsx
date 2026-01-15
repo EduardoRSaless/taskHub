@@ -1,6 +1,5 @@
-import React from "react";
 import { Link } from "react-router";
-import { CalenderIcon, GroupIcon, TaskIcon } from "../../icons"; // Remover PlusIcon da importação
+import { CalenderIcon, GroupIcon, TaskIcon } from "../../icons";
 
 export default function QuickActions() {
   return (

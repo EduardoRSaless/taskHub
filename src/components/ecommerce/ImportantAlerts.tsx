@@ -1,72 +1,57 @@
-import React from "react";
-import { AlertIcon, GroupIcon, DocsIcon, TimeIcon } from "../../icons";
+import { useData } from "../../context/DataContext";
 
 export default function ImportantAlerts() {
+  const { projects } = useData();
+
+  // Filtrar projetos atrasados ou com prazo hoje
+  const today = new Date().toISOString().split("T")[0];
+
+  const alerts = projects.filter(p => {
+    if (!p.dueDate) return false;
+    return (p.status === "Atrasado") || (p.dueDate === today && p.status !== "Concluído");
+  }).slice(0, 3); // Pegar os 3 primeiros
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-      <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">
-        Alertas Importantes
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+          Alertas Importantes
+        </h3>
+        <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
+          {alerts.length}
+        </span>
+      </div>
+
       <div className="space-y-4">
-        {/* Reuniões sem participantes */}
-        <div className="flex items-start gap-3 rounded-xl border border-orange-100 bg-orange-50 p-3 dark:border-orange-500/20 dark:bg-orange-500/10">
-          <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-orange-500 dark:bg-orange-500/20">
-            <GroupIcon className="h-5 w-5" />
+        {alerts.length > 0 ? (
+          alerts.map((project) => (
+            <div key={project.id} className="flex items-start gap-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20">
+              <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-sm dark:bg-gray-800 shrink-0">
+                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                  {project.name}
+                </h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {project.status === "Atrasado" ? "Projeto atrasado!" : "Vence hoje!"}
+                </p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="w-12 h-12 mb-3 bg-green-100 rounded-full flex items-center justify-center dark:bg-green-900/20">
+              <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">Tudo sob controle!</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Nenhum alerta pendente.</p>
           </div>
-          <div>
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">
-              Reuniões sem participantes
-            </h4>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              2 reuniões agendadas estão vazias.
-            </p>
-          </div>
-        </div>
-
-        {/* Eventos sem descrição */}
-        <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-blue-500/20 dark:bg-blue-500/10">
-          <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-500 dark:bg-blue-500/20">
-            <DocsIcon className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">
-              Eventos sem descrição
-            </h4>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              5 eventos precisam de detalhes.
-            </p>
-          </div>
-        </div>
-
-        {/* Conflitos de horário */}
-        <div className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-3 dark:border-red-500/20 dark:bg-red-500/10">
-          <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-500 dark:bg-red-500/20">
-            <AlertIcon className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">
-              Conflitos de horário
-            </h4>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              1 conflito detectado hoje às 14:00.
-            </p>
-          </div>
-        </div>
-
-        {/* Prazos próximos */}
-        <div className="flex items-start gap-3 rounded-xl border border-yellow-100 bg-yellow-50 p-3 dark:border-yellow-500/20 dark:bg-yellow-500/10">
-          <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-500 dark:bg-yellow-500/20">
-            <TimeIcon className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">
-              Prazos próximos
-            </h4>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              3 entregas vencem em breve.
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

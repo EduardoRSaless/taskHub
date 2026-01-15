@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link } from "react-router";
-import { useAuth } from "../../context/AuthContext"; // Importar useAuth
+import { useAuth } from "../../context/AuthContext";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout } = useAuth(); // Usar contexto
+  const { user, logout } = useAuth();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -21,7 +20,7 @@ export default function UserDropdown() {
     closeDropdown();
   };
 
-  if (!user) return null; // Não renderiza se não tiver usuário (embora ProtectedRoute cuide disso)
+  if (!user) return null;
 
   return (
     <div className="relative">

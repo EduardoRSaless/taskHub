@@ -1,9 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import AuthPage from "./pages/AuthPages/AuthPage"; // Importar a nova página unificada
+import AuthPage from "./pages/AuthPages/AuthPage";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
-import LineChart from "./pages/Charts/LineChart";
-import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -35,7 +33,7 @@ export default function App() {
             </Route>
           </Route>
 
-          {/* Auth Layout (Público) - Ambas as rotas usam o mesmo componente */}
+          {/* Auth Layout (Público) */}
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
 

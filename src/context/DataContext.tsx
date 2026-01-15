@@ -348,8 +348,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const event = events.find(e => e.id === id);
     if (!event) return;
     
-    const newStatus = event.extendedProps.status === "completed" ? "pending" : "completed";
-    const updatedEvent = {
+    const newStatus: "pending" | "completed" = event.extendedProps.status === "completed" ? "pending" : "completed"; // Tipagem explícita
+    const updatedEvent: CalendarEvent = {
       ...event,
       extendedProps: { ...event.extendedProps, status: newStatus }
     };

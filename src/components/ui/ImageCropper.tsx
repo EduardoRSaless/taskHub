@@ -1,7 +1,10 @@
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop/types";
 import Button from "./button/Button";
+
+// Definindo tipos manualmente para evitar erro de importação
+type Point = { x: number; y: number };
+type Area = { x: number; y: number; width: number; height: number };
 
 interface ImageCropperProps {
   imageSrc: string;
@@ -22,7 +25,8 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     setZoom(zoom);
   };
 
-  const onCropCompleteHandler = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+  // Removido o primeiro argumento não usado (croppedArea)
+  const onCropCompleteHandler = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -63,7 +67,6 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     );
 
     // Retornar Base64 com qualidade média (0.7)
-    // Isso deve gerar uma string de ~30-50KB
     return canvas.toDataURL("image/jpeg", 0.7);
   };
 
