@@ -7,7 +7,7 @@ com\dashboard\backend\repository\ProjectRepository.class
 com\dashboard\backend\controller\EventController.class
 com\dashboard\backend\controller\UserRoleUpdateRequest.class
 com\dashboard\backend\model\Event.class
-com\dashboard\backend\BackendApplication$1.class
+com\dashboard\backend\config\CorsConfig.class
 com\dashboard\backend\repository\UserRepository.class
 com\dashboard\backend\BackendApplication.class
 com\dashboard\backend\model\User.class
@@ -15,3 +15,4 @@ com\dashboard\backend\repository\TeamRepository.class
 com\dashboard\backend\controller\AuthController.class
 com\dashboard\backend\controller\MemberRequest.class
 com\dashboard\backend\repository\EventRepository.class
+com\dashboard\backend\config\CorsConfig$1.class
