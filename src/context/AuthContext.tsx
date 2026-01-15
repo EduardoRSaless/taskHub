@@ -10,6 +10,7 @@ export interface User {
   email: string;
   role: "Admin" | "Manager" | "Member";
   avatar?: string;
+  phone?: string; // Novo campo
   teamId?: string;
 }
 
@@ -19,13 +20,15 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>; // Novo
+  loginWithGoogle: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_URL = "http://localhost:3001/api/auth";
+const USER_API_URL = "http://localhost:3001/api/users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -59,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const userData = await res.json();
       const userWithAvatar = { ...userData, avatar: userData.avatar || "https://i.pravatar.cc/150?u=default" };
-
+      
       setUser(userWithAvatar);
       localStorage.setItem("auth_user", JSON.stringify(userWithAvatar));
     } catch (error) {
@@ -101,8 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const googleUser = await signInWithGoogle();
-
-      // Enviar para o backend para persistir/buscar no PostgreSQL
+      
       const res = await fetch(`${API_URL}/social-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,6 +129,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUser = async (userData: Partial<User>) => {
+    if (!user) return;
+    
+    try {
+      const res = await fetch(`${USER_API_URL}/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Erro do servidor:", errorText);
+        throw new Error(`Erro ao atualizar usuário: ${res.status} ${res.statusText}`);
+      }
+
+      const updatedUser = await res.json();
+      const newUserState = { ...user, ...updatedUser };
+      
+      setUser(newUserState);
+      localStorage.setItem("auth_user", JSON.stringify(newUserState));
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      throw error;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("auth_user");
@@ -134,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, signup, loginWithGoogle, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

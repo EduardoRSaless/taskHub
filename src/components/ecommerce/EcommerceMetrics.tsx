@@ -20,7 +20,6 @@ export default function EcommerceMetrics() {
   }).length;
 
   const meetingsToday = events.filter((e) => {
-    // Verifica se a data é hoje (string comparison YYYY-MM-DD)
     const eventDateStr = e.start.toString().split("T")[0];
     return eventDateStr === today;
   }).length;
@@ -31,7 +30,6 @@ export default function EcommerceMetrics() {
 
   return (
     <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-2">
-      {/* <!-- Eventos no Mês --> */}
       <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
           <CalenderIcon className="h-5 w-5 text-gray-800 dark:text-white/90" />
@@ -46,7 +44,6 @@ export default function EcommerceMetrics() {
         </div>
       </div>
 
-      {/* <!-- Reuniões Hoje --> */}
       <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
           <TimeIcon className="h-5 w-5 text-gray-800 dark:text-white/90" />

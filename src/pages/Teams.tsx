@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
@@ -6,80 +6,129 @@ import { useModal } from "../hooks/useModal";
 import { PlusIcon, GroupIcon, MoreDotIcon, UserIcon, CalenderIcon, TaskIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  avatar: string;
-}
-
-interface Team {
-  id: string;
-  name: string;
-  description: string;
-  members: TeamMember[];
-  nextEvent: string;
-  projectsCount: number;
-  status: "Active" | "Inactive";
-}
+import Badge from "../components/ui/badge/Badge";
+import { useData, Team } from "../context/DataContext";
+import { User } from "../context/AuthContext"; // Importar User do AuthContext
+import { useAuth } from "../context/AuthContext"; // Para pegar todos os usuários
 
 export default function Teams() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { teams, addTeam, updateTeam, deleteTeam, addMemberToTeam, removeMemberFromTeam } = useData();
+  const { user: loggedInUser } = useAuth(); // Usuário logado para simular busca de todos os usuários
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
-  // Mock Data
-  const [teams, setTeams] = useState<Team[]>([
-    {
-      id: "1",
-      name: "Time UI/UX Design",
-      description: "Responsável pela interface e experiência do usuário.",
-      members: [
-        { id: "1", name: "Alice Silva", role: "Lead Designer", avatar: "https://i.pravatar.cc/150?u=1" },
-        { id: "2", name: "Bob Santos", role: "UX Researcher", avatar: "https://i.pravatar.cc/150?u=2" },
-        { id: "3", name: "Carol Lima", role: "UI Designer", avatar: "https://i.pravatar.cc/150?u=3" },
-      ],
-      nextEvent: "Review de Design - Amanhã, 14:00",
-      projectsCount: 3,
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Time Desenvolvimento",
-      description: "Equipe de engenharia frontend e backend.",
-      members: [
-        { id: "4", name: "David Costa", role: "Tech Lead", avatar: "https://i.pravatar.cc/150?u=4" },
-        { id: "5", name: "Eva Pereira", role: "Frontend Dev", avatar: "https://i.pravatar.cc/150?u=5" },
-        { id: "6", name: "Frank Souza", role: "Backend Dev", avatar: "https://i.pravatar.cc/150?u=6" },
-        { id: "7", name: "Grace Oliveira", role: "DevOps", avatar: "https://i.pravatar.cc/150?u=7" },
-      ],
-      nextEvent: "Daily Standup - Hoje, 09:00",
-      projectsCount: 5,
-      status: "Active",
-    },
-    {
-      id: "3",
-      name: "Time Marketing",
-      description: "Campanhas, redes sociais e branding.",
-      members: [
-        { id: "8", name: "Hugo Alves", role: "Marketing Manager", avatar: "https://i.pravatar.cc/150?u=8" },
-        { id: "9", name: "Ivy Martins", role: "Content Creator", avatar: "https://i.pravatar.cc/150?u=9" },
-      ],
-      nextEvent: "Planejamento Q3 - Sexta, 10:00",
-      projectsCount: 2,
-      status: "Active",
-    },
-  ]);
+  // Estados do Formulário de Criação/Edição de Time
+  const [teamId, setTeamId] = useState<string | null>(null);
+  const [teamName, setTeamName] = useState("");
+  const [teamDescription, setTeamDescription] = useState("");
+
+  // Estados do Modal de Membros
+  const { isOpen: isMembersModalOpen, openModal: openMembersModal, closeModal: closeMembersModal } = useModal();
+  const [teamToManageMembers, setTeamToManageMembers] = useState<Team | null>(null);
+  const [userEmailToAdd, setUserEmailToAdd] = useState<string>(""); // Campo para email
+  const [memberActionError, setMemberActionError] = useState<string>("");
+
+  // Mock de usuários (para simular a busca de usuários)
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    // Em um cenário real, você buscaria todos os usuários do backend
+    // Por enquanto, vamos usar um mock simples ou o próprio usuário logado
+    if (loggedInUser) {
+      setAllUsers([
+        loggedInUser,
+        { id: "u1", name: "Eduardo Silva", email: "eduardo@empresa.com", role: "Admin", avatar: "https://i.pravatar.cc/150?u=1" },
+        { id: "u2", name: "Ana Costa", email: "ana@empresa.com", role: "Manager", avatar: "https://i.pravatar.cc/150?u=2" },
+        { id: "u3", name: "Carlos Lima", email: "carlos@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=3" },
+        { id: "u4", name: "Beatriz Souza", email: "beatriz@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=4" },
+        { id: "u5", name: "João Pereira", email: "joao@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=5" },
+      ].filter((user, index, self) => 
+        index === self.findIndex((u) => u.id === user.id) // Remove duplicatas
+      ));
+    }
+  }, [loggedInUser]);
 
   const handleTeamClick = (team: Team) => {
     setSelectedTeam(team);
+    setTeamId(null);
     openModal();
   };
 
   const handleCreateTeam = () => {
     setSelectedTeam(null);
+    setTeamId(null);
+    setTeamName("");
+    setTeamDescription("");
     openModal();
   };
+
+  const handleEditTeam = (team: Team) => {
+    setSelectedTeam(null);
+    setTeamId(team.id);
+    setTeamName(team.name);
+    setTeamDescription(team.description);
+    openModal();
+  };
+
+  const handleDeleteTeam = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este time?")) {
+      deleteTeam(id);
+    }
+  };
+
+  const handleSaveTeam = () => {
+    if (!teamName) return;
+
+    const teamData: Team = {
+      id: teamId || "",
+      name: teamName,
+      description: teamDescription,
+      members: selectedTeam?.members || [],
+    };
+
+    if (teamId) {
+      updateTeam({ ...teamData, id: teamId });
+    } else {
+      addTeam(teamData);
+    }
+    closeModal();
+  };
+
+  const handleManageMembers = (team: Team) => {
+    setTeamToManageMembers(team);
+    setUserEmailToAdd("");
+    setMemberActionError("");
+    openMembersModal();
+  };
+
+  const handleAddMember = async () => {
+    if (teamToManageMembers && userEmailToAdd) {
+      try {
+        await addMemberToTeam(teamToManageMembers.id, userEmailToAdd);
+        setUserEmailToAdd("");
+        setMemberActionError("");
+      } catch (error: any) {
+        setMemberActionError(error.message || "Erro ao adicionar membro.");
+      }
+    }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (teamToManageMembers) {
+      const memberToRemove = allUsers.find(u => u.id === userId);
+      if (memberToRemove && confirm(`Remover ${memberToRemove.email} do time?`)) {
+        try {
+          await removeMemberFromTeam(teamToManageMembers.id, memberToRemove.email);
+          setMemberActionError("");
+        } catch (error: any) {
+          setMemberActionError(error.message || "Erro ao remover membro.");
+        }
+      }
+    }
+  };
+
+  // Helper para obter o objeto User completo a partir do ID
+  const getUserById = (userId: string) => allUsers.find(u => u.id === userId);
 
   return (
     <>
@@ -104,7 +153,7 @@ export default function Teams() {
             onClick={handleCreateTeam}
             className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
           >
-            <PlusIcon className="h-5 w-0" />
+            <PlusIcon className="h-5 w-5" />
             Criar Novo Time
           </button>
         </div>
@@ -112,17 +161,25 @@ export default function Teams() {
         {/* Grid de Times */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {teams.map((team) => (
-            <TeamCard key={team.id} team={team} onClick={() => handleTeamClick(team)} />
+            <TeamCard 
+              key={team.id} 
+              team={team} 
+              onClick={() => handleTeamClick(team)}
+              onEdit={() => handleEditTeam(team)}
+              onDelete={() => handleDeleteTeam(team.id)}
+              onManageMembers={() => handleManageMembers(team)}
+              allUsers={allUsers} // Passar todos os usuários para o TeamCard
+            />
           ))}
         </div>
       </div>
 
-      {/* Modal de Detalhes/Criação */}
+      {/* Modal de Detalhes/Criação/Edição de Time */}
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-              {selectedTeam ? selectedTeam.name : "Criar Novo Time"}
+              {selectedTeam ? selectedTeam.name : (teamId ? "Editar Time" : "Criar Novo Time")}
             </h3>
             <button onClick={closeModal} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               <span className="sr-only">Fechar</span>
@@ -133,101 +190,175 @@ export default function Teams() {
           </div>
 
           {selectedTeam ? (
+            // MODO VISUALIZAÇÃO (Detalhes)
             <div className="space-y-6">
-              {/* Detalhes do Time */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <p className="text-gray-600 dark:text-gray-300">
+                {selectedTeam.description}
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <GroupIcon className="h-4 w-4 text-brand-500" />
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Membros</span>
+                  <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3 flex items-center gap-2">
+                    <UserIcon className="h-4 w-4 text-brand-500" />
+                    Membros do Time ({selectedTeam.members.length})
+                  </h4>
+                  <div className="flex -space-x-2">
+                    {selectedTeam.members.slice(0, 3).map((memberId, i) => {
+                      const member = getUserById(memberId);
+                      return member ? (
+                        <img key={i} src={member.avatar} alt={member.name} className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-900 object-cover" />
+                      ) : null;
+                    })}
+                    {selectedTeam.members.length > 3 && (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-100 text-xs font-medium text-gray-600 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-300">
+                        +{selectedTeam.members.length - 3}
+                      </div>
+                    )}
                   </div>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white/90">{selectedTeam.members.length}</p>
+                  <button 
+                    onClick={() => handleManageMembers(selectedTeam)}
+                    className="mt-3 text-xs font-medium text-brand-500 hover:text-brand-600"
+                  >
+                    Gerenciar Membros
+                  </button>
                 </div>
+
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                  <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3 flex items-center gap-2">
                     <TaskIcon className="h-4 w-4 text-blue-500" />
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Projetos</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white/90">{selectedTeam.projectsCount}</p>
-                </div>
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CalenderIcon className="h-4 w-4 text-green-500" />
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Próximo Evento</span>
-                  </div>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white/90 line-clamp-1" title={selectedTeam.nextEvent}>
-                    {selectedTeam.nextEvent.split(" - ")[0]}
+                    Projetos Vinculados
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {/* Aqui você listaria projetos reais */}
+                    Nenhum projeto vinculado (funcionalidade futura)
                   </p>
                 </div>
               </div>
-
-              {/* Lista de Membros */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90">Membros do Time</h4>
-                  <button className="text-xs font-medium text-brand-500 hover:text-brand-600">
-                    + Adicionar Membro
-                  </button>
-                </div>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                  {selectedTeam.members.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]">
-                      <div className="flex items-center gap-3">
-                        <img src={member.avatar} alt={member.name} className="h-10 w-10 rounded-full object-cover" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-800 dark:text-white/90">{member.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{member.role}</p>
-                        </div>
-                      </div>
-                      <button className="text-gray-400 hover:text-red-500 transition-colors">
-                        <span className="sr-only">Remover</span>
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              
+              <div className="flex justify-end pt-4">
+                 <button 
+                   onClick={() => handleEditTeam(selectedTeam)}
+                   className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                 >
+                   Editar Time
+                 </button>
               </div>
             </div>
           ) : (
+            // MODO EDIÇÃO / CRIAÇÃO
             <div className="space-y-4">
-              {/* Formulário de Criação */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Nome do Time
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Time de Vendas"
-                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+                <input 
+                  type="text" 
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500" 
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   Descrição
                 </label>
-                <textarea
-                  rows={3}
-                  placeholder="Objetivo e responsabilidades do time..."
-                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+                <textarea 
+                  rows={3} 
+                  value={teamDescription}
+                  onChange={(e) => setTeamDescription(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500" 
                 />
               </div>
               <div className="pt-4">
-                <button className="w-full rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
-                  Criar Time
+                <button 
+                  onClick={handleSaveTeam}
+                  className="w-full rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                  {teamId ? "Salvar Alterações" : "Criar Time"}
                 </button>
               </div>
             </div>
           )}
         </div>
       </Modal>
+
+      {/* Modal de Gerenciar Membros */}
+      <Modal isOpen={isMembersModalOpen} onClose={closeMembersModal} className="max-w-[500px] p-6">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
+          Gerenciar Membros do Time: {teamToManageMembers?.name}
+        </h3>
+        
+        <div className="space-y-4">
+          {/* Adicionar Membro */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              Adicionar Membro por E-mail
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder="email@exemplo.com"
+                value={userEmailToAdd}
+                onChange={(e) => setUserEmailToAdd(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+              />
+              <button 
+                onClick={handleAddMember}
+                className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
+              >
+                Adicionar
+              </button>
+            </div>
+            {memberActionError && (
+              <p className="text-sm text-red-500 mt-2">{memberActionError}</p>
+            )}
+          </div>
+
+          {/* Lista de Membros Atuais */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-2">
+              Membros Atuais ({teamToManageMembers?.members.length || 0})
+            </h4>
+            <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+              {teamToManageMembers?.members.length === 0 && (
+                <p className="text-sm text-gray-500">Nenhum membro neste time.</p>
+              )}
+              {teamToManageMembers?.members.map(memberId => {
+                const member = getUserById(memberId);
+                return member ? (
+                  <div key={member.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-2 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]">
+                    <div className="flex items-center gap-3">
+                      <img src={member.avatar} alt={member.name} className="h-8 w-8 rounded-full object-cover" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-800 dark:text-white/90">{member.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{member.email}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleRemoveMember(member.id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <span className="sr-only">Remover</span>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : null;
+              })}
+            </div>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
 
-function TeamCard({ team, onClick }: { team: Team; onClick: () => void }) {
+function TeamCard({ team, onClick, onEdit, onDelete, onManageMembers, allUsers }: { team: Team; onClick: () => void; onEdit: () => void; onDelete: () => void; onManageMembers: () => void; allUsers: User[] }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Helper para obter o objeto User completo a partir do ID
+  const getUserById = (userId: string) => allUsers.find(u => u.id === userId);
 
   return (
     <div 
@@ -246,11 +377,23 @@ function TeamCard({ team, onClick }: { team: Team; onClick: () => void }) {
             <MoreDotIcon className="h-5 w-5" />
           </button>
           <Dropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} className="w-40 p-2 right-0 top-full">
-            <DropdownItem className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5">
+            <DropdownItem 
+              onItemClick={() => { setIsDropdownOpen(false); onEdit(); }}
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5"
+            >
               Editar
             </DropdownItem>
-            <DropdownItem className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
-              Arquivar
+            <DropdownItem 
+              onItemClick={() => { setIsDropdownOpen(false); onManageMembers(); }}
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5"
+            >
+              Gerenciar Membros
+            </DropdownItem>
+            <DropdownItem 
+              onItemClick={() => { setIsDropdownOpen(false); onDelete(); }}
+              className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+            >
+              Excluir
             </DropdownItem>
           </Dropdown>
         </div>
@@ -266,34 +409,33 @@ function TeamCard({ team, onClick }: { team: Team; onClick: () => void }) {
       <div className="mt-auto space-y-4">
         <div className="flex items-center justify-between text-sm">
           <div className="flex -space-x-2">
-            {team.members.slice(0, 3).map((member) => (
-              <img
-                key={member.id}
-                src={member.avatar}
-                alt={member.name}
-                className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-900 object-cover"
-                title={member.name}
-              />
-            ))}
+            {team.members.slice(0, 3).map((memberId, i) => {
+              const member = getUserById(memberId);
+              return member ? (
+                <img
+                  key={i}
+                  src={member.avatar}
+                  alt={member.name}
+                  className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-900 object-cover"
+                  title={member.name}
+                />
+              ) : null;
+            })}
             {team.members.length > 3 && (
               <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-100 text-xs font-medium text-gray-600 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-300">
                 +{team.members.length - 3}
               </div>
             )}
           </div>
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            team.status === "Active" 
-              ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-              : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-          }`}>
-            {team.status === "Active" ? "Ativo" : "Inativo"}
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-success-100 text-success-800 dark:bg-success-500/10 dark:text-success-400`}>
+            Ativo {/* Status mockado */}
           </span>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2.5 dark:bg-white/[0.03]">
           <CalenderIcon className="h-4 w-4 text-gray-400" />
           <span className="text-xs font-medium text-gray-600 dark:text-gray-300 truncate">
-            {team.nextEvent}
+            Próximo evento (mock)
           </span>
         </div>
       </div>

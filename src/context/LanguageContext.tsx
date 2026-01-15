@@ -14,17 +14,17 @@ const translations: Translations = {
   pt: {
     "menu.dashboard": "Dashboard",
     "menu.calendar": "Calendário",
-    "menu.profile": "Perfil de Usuário",
+    "menu.profile": "Meu Perfil",
     "menu.teams": "Times",
     "menu.projects": "Projetos",
     "menu.permissions": "Permissões",
     // "menu.forms": "Formulários", // Removido
     // "menu.tables": "Tabelas", // Removido
     // "menu.pages": "Páginas", // Removido
-    "menu.others": "Outros",
-    "menu.charts": "Gráficos",
-    "menu.uiElements": "Elementos UI",
-    "menu.auth": "Autenticação",
+    // "menu.others": "Gráficos", // Removido
+    // "menu.charts": "Gráficos", // Removido
+    // "menu.uiElements": "Elementos UI", // Removido
+    // "menu.auth": "Autenticação", // Removido
     "settings.title": "Configurações",
     "settings.general": "Geral",
     "settings.calendar": "Regras do Calendário",
@@ -36,17 +36,17 @@ const translations: Translations = {
   en: {
     "menu.dashboard": "Dashboard",
     "menu.calendar": "Calendar",
-    "menu.profile": "User Profile",
+    "menu.profile": "My Profile",
     "menu.teams": "Teams",
     "menu.projects": "Projects",
     "menu.permissions": "Permissions",
     // "menu.forms": "Forms", // Removido
     // "menu.tables": "Tables", // Removido
     // "menu.pages": "Pages", // Removido
-    "menu.others": "Others",
-    "menu.charts": "Charts",
-    "menu.uiElements": "UI Elements",
-    "menu.auth": "Authentication",
+    // "menu.others": "Charts", // Removido
+    // "menu.charts": "Charts", // Removido
+    // "menu.uiElements": "UI Elements", // Removido
+    // "menu.auth": "Authentication", // Removido
     "settings.title": "Settings",
     "settings.general": "General",
     "settings.calendar": "Calendar Rules",
@@ -58,17 +58,17 @@ const translations: Translations = {
   es: {
     "menu.dashboard": "Tablero",
     "menu.calendar": "Calendario",
-    "menu.profile": "Perfil de Usuario",
+    "menu.profile": "Mi Perfil",
     "menu.teams": "Equipos",
     "menu.projects": "Proyectos",
     "menu.permissions": "Permisos",
     // "menu.forms": "Formularios", // Removido
     // "menu.tables": "Tablas", // Removido
     // "menu.pages": "Páginas", // Removido
-    "menu.others": "Otros",
-    "menu.charts": "Gráficos",
-    "menu.uiElements": "Elementos UI",
-    "menu.auth": "Autenticación",
+    // "menu.others": "Gráficos", // Removido
+    // "menu.charts": "Gráficos", // Removido
+    // "menu.uiElements": "Elementos UI", // Removido
+    // "menu.auth": "Autenticación", // Removido
     "settings.title": "Configuraciones",
     "settings.general": "General",
     "settings.calendar": "Reglas del Calendario",

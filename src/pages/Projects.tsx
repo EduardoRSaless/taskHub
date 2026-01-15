@@ -11,7 +11,7 @@ import { useData, Project } from "../context/DataContext";
 
 export default function Projects() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { projects, addProject, updateProject, deleteProject, getProjectProgress } = useData();
+  const { projects, teams, addProject, updateProject, deleteProject, getProjectProgress } = useData(); // Adicionado 'teams'
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("Todos");
   const [search, setSearch] = useState("");
@@ -21,7 +21,7 @@ export default function Projects() {
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectDate, setProjectDate] = useState("");
-  const [projectTeam, setProjectTeam] = useState("Time UI/UX Design");
+  const [projectTeamId, setProjectTeamId] = useState<string>(""); // Alterado para teamId
   const [projectStatus, setProjectStatus] = useState<Project["status"]>("Em Andamento");
 
   const filteredProjects = projects.filter((project) => {
@@ -32,10 +32,7 @@ export default function Projects() {
 
   const handleProjectClick = (project: Project) => {
     setSelectedProject(project);
-    // Não abre o modal de edição, abre o de detalhes (que é o mesmo visualmente, mas read-only por enquanto)
-    // Para simplificar, vou usar o mesmo modal para detalhes, mas sem campos de edição, apenas visualização
-    // Ou melhor, vou separar: clique no card = detalhes; clique no edit = edição.
-    setProjectId(null); // Garante que não está em modo de edição
+    setProjectId(null);
     openModal();
   };
 
@@ -45,18 +42,18 @@ export default function Projects() {
     setProjectName("");
     setProjectDesc("");
     setProjectDate("");
-    setProjectTeam("Time UI/UX Design");
+    setProjectTeamId(""); // Resetar teamId
     setProjectStatus("Em Andamento");
     openModal();
   };
 
   const handleEditProject = (project: Project) => {
-    setSelectedProject(null); // Modo edição, não visualização
+    setSelectedProject(null);
     setProjectId(project.id);
     setProjectName(project.name);
     setProjectDesc(project.description);
     setProjectDate(project.dueDate);
-    setProjectTeam(project.team);
+    setProjectTeamId(project.teamId || ""); // Preencher teamId
     setProjectStatus(project.status);
     openModal();
   };
@@ -70,17 +67,16 @@ export default function Projects() {
   const handleSaveProject = () => {
     if (!projectName) return;
 
-    const projectData: Project = {
-      id: projectId || Date.now().toString(),
+    const projectData: Omit<Project, "id" | "teamName"> = { // teamName é derivado
       name: projectName,
       description: projectDesc,
       status: projectStatus,
-      team: projectTeam,
+      teamId: projectTeamId, // Usar teamId
       dueDate: projectDate,
     };
 
     if (projectId) {
-      updateProject(projectData);
+      updateProject({ ...projectData, id: projectId, teamName: teams.find(t => t.id === projectTeamId)?.name || "Sem Time" });
     } else {
       addProject(projectData);
     }
@@ -223,7 +219,7 @@ export default function Projects() {
                   <GroupIcon className="h-4 w-4 text-brand-500" />
                   Time Responsável
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{selectedProject.team}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{selectedProject.teamName}</p>
               </div>
               
               <div className="flex justify-end pt-4">
@@ -293,13 +289,14 @@ export default function Projects() {
                   Time Responsável
                 </label>
                 <select 
-                  value={projectTeam}
-                  onChange={(e) => setProjectTeam(e.target.value)}
+                  value={projectTeamId}
+                  onChange={(e) => setProjectTeamId(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
                 >
-                  <option>Time UI/UX Design</option>
-                  <option>Time Desenvolvimento</option>
-                  <option>Time Marketing</option>
+                  <option value="">Nenhum Time</option>
+                  {teams.map(team => (
+                    <option key={team.id} value={team.id}>{team.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="pt-4">
@@ -377,7 +374,7 @@ function ProjectCard({
 
       <div className="space-y-4 mt-auto">
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>{project.team}</span>
+          <span>{project.teamName}</span> {/* Usar teamName */}
           <span>{project.dueDate}</span>
         </div>
 

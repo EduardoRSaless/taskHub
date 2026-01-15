@@ -1,5 +1,6 @@
 package com.dashboard.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
@@ -16,11 +17,14 @@ public class Project {
     private String name;
     private String description;
     private String status;
-    private String team;
     
     @Column(name = "due_date")
     private LocalDate dueDate;
 
     @Column(name = "owner_id")
     private UUID ownerId;
+
+    @ManyToOne(fetch = FetchType.EAGER) // Mudado para EAGER para evitar problemas de serialização
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
