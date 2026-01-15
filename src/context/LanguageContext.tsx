@@ -18,9 +18,9 @@ const translations: Translations = {
     "menu.teams": "Times",
     "menu.projects": "Projetos",
     "menu.permissions": "Permissões",
-    "menu.forms": "Formulários",
-    "menu.tables": "Tabelas",
-    "menu.pages": "Páginas",
+    // "menu.forms": "Formulários", // Removido
+    // "menu.tables": "Tabelas", // Removido
+    // "menu.pages": "Páginas", // Removido
     "menu.others": "Outros",
     "menu.charts": "Gráficos",
     "menu.uiElements": "Elementos UI",
@@ -40,9 +40,9 @@ const translations: Translations = {
     "menu.teams": "Teams",
     "menu.projects": "Projects",
     "menu.permissions": "Permissions",
-    "menu.forms": "Forms",
-    "menu.tables": "Tables",
-    "menu.pages": "Pages",
+    // "menu.forms": "Forms", // Removido
+    // "menu.tables": "Tables", // Removido
+    // "menu.pages": "Pages", // Removido
     "menu.others": "Others",
     "menu.charts": "Charts",
     "menu.uiElements": "UI Elements",
@@ -62,9 +62,9 @@ const translations: Translations = {
     "menu.teams": "Equipos",
     "menu.projects": "Proyectos",
     "menu.permissions": "Permisos",
-    "menu.forms": "Formularios",
-    "menu.tables": "Tablas",
-    "menu.pages": "Páginas",
+    // "menu.forms": "Formularios", // Removido
+    // "menu.tables": "Tablas", // Removido
+    // "menu.pages": "Páginas", // Removido
     "menu.others": "Otros",
     "menu.charts": "Gráficos",
     "menu.uiElements": "Elementos UI",

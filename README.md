@@ -1,197 +1,179 @@
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+# TaskHub Dashboard
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
-with everything they need to create a comprehensive, data-driven back-end,
-dashboard, or admin panel solution for upcoming web projects.
+![Dashboard Screenshot](https://via.placeholder.com/1200x600?text=Dashboard+Screenshot) <!-- Replace with actual screenshot -->
 
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
-feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
-application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+A modern, full-stack project management and collaboration dashboard built with React, Java Spring Boot, and PostgreSQL. It features a comprehensive dashboard, interactive calendar, project management, team organization, and robust user authentication.
 
-![TailAdmin React.js Dashboard Preview](./banner.png)
+## ✨ Features
 
-## Overview
+-   **Interactive Dashboard**: Real-time overview of key metrics, upcoming events, and project progress.
+-   **Dynamic Calendar**: Manage events, meetings, and deadlines with FullCalendar integration. Supports multiple views (Month, Week, Day) and event categorization.
+-   **Project Management**: Create, track, and manage projects with status updates, progress bars (based on event completion), and team assignments.
+-   **Team Organization**: Organize and manage teams, view members, and assign responsibilities.
+-   **User Authentication**: Secure login and registration with traditional email/password and Google Sign-in via Firebase Authentication.
+-   **Role-Based Permissions**: Define and manage user roles (Admin, Manager, Member) with a detailed permission matrix.
+-   **User Profiles**: Personalized user profiles with system preferences.
+-   **Internationalization (i18n)**: Multi-language support (Portuguese, English, Spanish).
+-   **Theme Toggling**: Light and Dark mode support for enhanced user experience.
+-   **Responsive Design**: Optimized for various screen sizes using Tailwind CSS.
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
-control panels. It's built on:
+## 🚀 Tech Stack
 
-- React 19
-- TypeScript
-- Tailwind CSS v4
+### Frontend
+-   **React**: A JavaScript library for building user interfaces.
+-   **Vite**: A fast build tool for modern web projects.
+-   **TypeScript**: Strongly typed JavaScript.
+-   **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
+-   **React Router**: For declarative routing.
+-   **FullCalendar**: A JavaScript event calendar.
+-   **ApexCharts**: For interactive data visualizations.
+-   **Firebase Authentication**: For Google Sign-in.
 
-### Quick Links
+### Backend
+-   **Java**: The core programming language.
+-   **Spring Boot**: Framework for building robust, production-ready applications.
+-   **Spring Data JPA**: For easy database interaction.
+-   **PostgreSQL**: A powerful, open-source relational database.
+-   **Lombok**: To reduce boilerplate code in Java models.
+-   **Maven**: For project build automation.
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+## 🛠️ Setup and Installation
 
-### Demos
-
-- [Free Version](https://free-react-demo.tailadmin.com/)
-- [Pro Version](https://react-demo.tailadmin.com)
-
-### Other Versions
-
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
-- [Angular Version](https://github.com/TailAdmin/free-angular-tailwind-dashboard)
-- [Laravel Version](https://github.com/TailAdmin/tailadmin-laravel)
-
-## Installation
+Follow these steps to get your development environment running.
 
 ### Prerequisites
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+-   Node.js (LTS recommended) & npm/Yarn
+-   Java Development Kit (JDK 17 or higher)
+-   Apache Maven
+-   PostgreSQL database server
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
+### 1. Database Setup
 
-### Cloning the Repository
+1.  Ensure your PostgreSQL server is running.
+2.  Create a new database named `dashboard_db`.
+3.  Connect to `dashboard_db` and run the following SQL script to create the necessary tables:
 
-Clone the repository using the following command:
+    ```sql
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-```bash
-git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
-```
+    CREATE TABLE users (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      name VARCHAR(100) NOT NULL,
+      email VARCHAR(100) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      role VARCHAR(20) NOT NULL,
+      avatar VARCHAR(255), -- Added for user avatar
+      team_id UUID, -- Added for team relationship
+      created_at TIMESTAMP DEFAULT NOW()
+    );
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+    CREATE TABLE teams (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      name VARCHAR(100) NOT NULL,
+      description TEXT, -- Added for team description
+      created_at TIMESTAMP DEFAULT NOW()
+    );
 
-1. Install dependencies:
+    CREATE TABLE projects (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      status VARCHAR(50) DEFAULT 'Em Andamento', -- Added status
+      team VARCHAR(100), -- Added team name for display
+      due_date DATE, -- Added due date
+      owner_id UUID REFERENCES users(id),
+      created_at TIMESTAMP DEFAULT NOW()
+    );
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+    CREATE TABLE events (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      title VARCHAR(100) NOT NULL,
+      start_time TIMESTAMP NOT NULL,
+      end_time TIMESTAMP,
+      all_day BOOLEAN DEFAULT FALSE, -- Added all_day
+      category VARCHAR(50), -- Added category
+      description TEXT, -- Added description
+      status VARCHAR(20) DEFAULT 'pending', -- Added status
+      project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
+      created_by UUID REFERENCES users(id),
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+    ```
+    *Note: The `team_id` in `users` and `team` in `projects` are currently placeholders for future full relationships.*
 
-2. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+### 2. Backend Setup (Java Spring Boot)
 
-## Components
+1.  Navigate to the `server` directory:
+    ```bash
+    cd server
+    ```
+2.  Configure your database connection in `server/src/main/resources/application.properties`:
+    ```properties
+    spring.datasource.url=jdbc:postgresql://localhost:5432/dashboard_db
+    spring.datasource.username=postgres
+    spring.datasource.password=your_db_password_here
+    ```
+    **Important:** Replace `your_db_password_here` with your actual PostgreSQL password.
+3.  Run the backend application:
+    ```bash
+    mvn spring-boot:run
+    ```
+    The backend should start on `http://localhost:3001`.
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
-template includes:
+### 3. Frontend Setup (React)
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- FAQ & Accordion, Testimonials, and Carousels
-- Can't forget Dark Mode 🕶️
+1.  Navigate back to the project root directory:
+    ```bash
+    cd ..
+    ```
+2.  Install frontend dependencies:
+    ```bash
+    npm install
+    # or yarn install
+    ```
+3.  **Firebase Configuration:**
+    *   Create a Firebase project and enable Google Sign-in in Firebase Authentication.
+    *   Register a web app and get your Firebase configuration keys.
+    *   Create a file named `.env.local` in the **root directory** of your project and add your Firebase keys:
+        ```
+        VITE_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+        VITE_FIREBASE_AUTH_DOMAIN=YOUR_FIREBASE_AUTH_DOMAIN
+        VITE_FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
+        VITE_FIREBASE_STORAGE_BUCKET=YOUR_FIREBASE_STORAGE_BUCKET
+        VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_FIREBASE_MESSAGING_SENDER_ID
+        VITE_FIREBASE_APP_ID=YOUR_FIREBASE_APP_ID
+        ```
+    *   Also, define your backend API URL (for local development):
+        ```
+        VITE_API_URL=http://localhost:3001/api
+        ```
+4.  Run the frontend application:
+    ```bash
+    npm run dev
+    # or yarn dev
+    ```
+    The frontend should start on `http://localhost:5173` (or another port).
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+## 🚀 Usage
 
-## Feature Comparison
+1.  Ensure both your Backend (Java) and Frontend (React) servers are running.
+2.  Open your browser to `http://localhost:5173`.
+3.  Use the Sign In/Sign Up page. For initial testing, you can register a new user or use the mock user `admin@empresa.com` with password `123456` (if you manually add it to your `users` table).
+4.  Explore the Dashboard, Calendar, Projects, Teams, and Permissions features.
 
-### Free Version
+## 🌐 Deployment
 
-- 1 Unique Dashboard
-- 35+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+This project is designed for a modern deployment strategy:
 
-### Pro Version
+-   **Frontend (React)**: Can be deployed on platforms like [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/). Remember to configure your `VITE_API_URL` environment variable on the chosen platform to point to your deployed backend.
+-   **Backend (Java Spring Boot)**: Can be deployed on cloud providers like [Render](https://render.com/), [Railway](https://railway.app/), AWS, or Google Cloud.
+-   **Database (PostgreSQL)**: Can be hosted on managed services like [Supabase Database](https://supabase.com/database), [Neon.tech](https://neon.tech/), or provided by your cloud backend provider.
 
-- 7 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, SaaS, Stocks, Logistics (more coming soon)
-- 500+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+## 🤝 Contributing
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
-## Changelog
+## 📄 License
 
-### Version 2.1.0 - [Dec 30, 2025]
-
-- Resolved Date Picker positioning and input issues in Charts.
-
-### Version 2.0.2 - [March 25, 2025]
-
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
-
-### Version 2.0.1 - [February 27, 2025]
-
-#### Update Overview
-
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
-
-#### Next Steps
-
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
-
-### Version 2.0.0 - [February 2025]
-
-A major update with comprehensive redesign and modern React patterns implementation.
-
-#### Major Improvements
-
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
-
-#### Key Features
-
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
-
-#### Breaking Changes
-
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
-
-[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
-
-### Version 1.3.7 - [June 20, 2024]
-
-#### Enhancements
-
-1. Remove Repetition of DefaultLayout in every Pages
-2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
-
-### Version 1.3.6 - [Jan 31, 2024]
-
-#### Enhancements
-
-1. Integrate flatpickr in [Date Picker/Form Elements]
-2. Change color after select an option [Select Element/Form Elements].
-3. Make it functional [Multiselect Dropdown/Form Elements].
-4. Make best value editable [Pricing Table One/Pricing Table].
-5. Rearrange Folder structure.
-
-### Version 1.2.0 - [Apr 28, 2023]
-
-- Add Typescript in TailAdmin React.
-
-### Version 1.0.0 - Initial Release - [Mar 13, 2023]
-
-- Initial release of TailAdmin React.
-
-## License
-
-TailAdmin React.js Free Version is released under the MIT License.
-
-## Support
-
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
-and maintaining this template.
+This project is open-source and available under the [MIT License](LICENSE). <!-- Ensure you have a LICENSE file -->

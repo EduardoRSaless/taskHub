@@ -12,9 +12,9 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
-import Blank from "./pages/Blank";
+// import BasicTables from "./pages/Tables/BasicTables"; // Removido
+// import FormElements from "./pages/Forms/FormElements"; // Removido
+// import Blank from "./pages/Blank"; // Removido
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
@@ -42,13 +42,13 @@ export default function App() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/permissions" element={<Permissions />} />
-              <Route path="/blank" element={<Blank />} />
+              {/* <Route path="/blank" element={<Blank />} /> */} {/* Removido */}
 
               {/* Forms */}
-              <Route path="/form-elements" element={<FormElements />} />
+              {/* <Route path="/form-elements" element={<FormElements />} /> */} {/* Removido */}
 
               {/* Tables */}
-              <Route path="/basic-tables" element={<BasicTables />} />
+              {/* <Route path="/basic-tables" element={<BasicTables />} /> */} {/* Removido */}
 
               {/* Ui Elements */}
               <Route path="/alerts" element={<Alerts />} />

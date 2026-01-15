@@ -70,24 +70,6 @@ const AppSidebar: React.FC = () => {
       name: t("menu.permissions"),
       path: "/permissions",
     },
-    {
-      name: t("menu.forms"),
-      icon: <ListIcon />,
-      subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-    },
-    {
-      name: t("menu.tables"),
-      icon: <TableIcon />,
-      subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-    },
-    {
-      name: t("menu.pages"),
-      icon: <PageIcon />,
-      subItems: [
-        { name: "Blank Page", path: "/blank", pro: false },
-        { name: "404 Error", path: "/error-404", pro: false },
-      ],
-    },
   ];
 
   const othersItems: NavItem[] = [
