@@ -3,14 +3,14 @@ import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
-import { PlusIcon, MoreDotIcon, TimeIcon, GroupIcon } from "../icons"; // Removido CalenderIcon
+import { PlusIcon, MoreDotIcon, TimeIcon, GroupIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 import Badge from "../components/ui/badge/Badge";
 import { useData, Project } from "../context/DataContext";
 
-// Definir o tipo BadgeColor localmente ou importar se estiver exportado
-type BadgeColor = "success" | "warning" | "error" | "light" | "brand";
+// Definir o tipo BadgeColor compatível com o componente Badge
+type BadgeColor = "primary" | "success" | "error" | "warning" | "info" | "light" | "dark";
 
 export default function Projects() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -86,7 +86,7 @@ export default function Projects() {
     closeModal();
   };
 
-  const getStatusColor = (status: string): BadgeColor => { // Tipagem explícita do retorno
+  const getStatusColor = (status: string): BadgeColor => {
     switch (status) {
       case "Em Andamento": return "success";
       case "Concluído": return "success";
