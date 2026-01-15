@@ -1,0 +1,23 @@
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import ComponentCard from "../../components/common/ComponentCard";
+import BarChartOne from "../../components/charts/bar/BarChartOne";
+import PageMeta from "../../components/common/PageMeta";
+import DemographicCard from "../../components/ecommerce/DemographicCard";
+
+export default function BarChart() {
+  return (
+    <div>
+      <PageMeta
+        title="Dashboard Bar Chart | Dashboard Template"
+        description=""
+      />
+      <PageBreadcrumb pageTitle="Dashboard" />
+      <div className="space-y-6">
+        <ComponentCard title="Dias trabalhados">
+          <BarChartOne />
+        </ComponentCard>
+        <DemographicCard />
+      </div>
+    </div>
+  );
+}

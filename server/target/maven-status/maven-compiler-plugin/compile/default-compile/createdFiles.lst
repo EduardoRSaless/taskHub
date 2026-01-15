@@ -1,0 +1,11 @@
+com\dashboard\backend\controller\ProjectController.class
+com\dashboard\backend\model\Event.class
+com\dashboard\backend\model\Project.class
+com\dashboard\backend\BackendApplication$1.class
+com\dashboard\backend\repository\ProjectRepository.class
+com\dashboard\backend\controller\EventController.class
+com\dashboard\backend\repository\UserRepository.class
+com\dashboard\backend\BackendApplication.class
+com\dashboard\backend\model\User.class
+com\dashboard\backend\controller\AuthController.class
+com\dashboard\backend\repository\EventRepository.class
