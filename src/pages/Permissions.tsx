@@ -3,7 +3,7 @@ import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
-import { PlusIcon, LockIcon, UserIcon, CheckCircleIcon, TrashBinIcon } from "../icons"; // Importar TrashBinIcon
+import { PlusIcon, TrashBinIcon } from "../icons"; // Removidos ícones não usados
 import Badge from "../components/ui/badge/Badge";
 import { useData } from "../context/DataContext";
 import { User } from "../context/AuthContext";

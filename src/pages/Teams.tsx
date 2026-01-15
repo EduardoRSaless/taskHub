@@ -6,15 +6,15 @@ import { useModal } from "../hooks/useModal";
 import { PlusIcon, GroupIcon, MoreDotIcon, UserIcon, CalenderIcon, TaskIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
-import Badge from "../components/ui/badge/Badge";
+// import Badge from "../components/ui/badge/Badge"; // Removido Badge não usado
 import { useData, Team } from "../context/DataContext";
-import { User } from "../context/AuthContext"; // Importar User do AuthContext
-import { useAuth } from "../context/AuthContext"; // Para pegar todos os usuários
+import { User } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Teams() {
   const { isOpen, openModal, closeModal } = useModal();
   const { teams, addTeam, updateTeam, deleteTeam, addMemberToTeam, removeMemberFromTeam } = useData();
-  const { user: loggedInUser } = useAuth(); // Usuário logado para simular busca de todos os usuários
+  const { user: loggedInUser } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   // Estados do Formulário de Criação/Edição de Time
@@ -25,25 +25,25 @@ export default function Teams() {
   // Estados do Modal de Membros
   const { isOpen: isMembersModalOpen, openModal: openMembersModal, closeModal: closeMembersModal } = useModal();
   const [teamToManageMembers, setTeamToManageMembers] = useState<Team | null>(null);
-  const [userEmailToAdd, setUserEmailToAdd] = useState<string>(""); // Campo para email
+  const [userEmailToAdd, setUserEmailToAdd] = useState<string>("");
   const [memberActionError, setMemberActionError] = useState<string>("");
 
-  // Mock de usuários (para simular a busca de usuários)
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Em um cenário real, você buscaria todos os usuários do backend
-    // Por enquanto, vamos usar um mock simples ou o próprio usuário logado
     if (loggedInUser) {
-      setAllUsers([
+      // Mock de usuários com tipagem correta para role
+      const mockUsers: User[] = [
         loggedInUser,
         { id: "u1", name: "Eduardo Silva", email: "eduardo@empresa.com", role: "Admin", avatar: "https://i.pravatar.cc/150?u=1" },
         { id: "u2", name: "Ana Costa", email: "ana@empresa.com", role: "Manager", avatar: "https://i.pravatar.cc/150?u=2" },
         { id: "u3", name: "Carlos Lima", email: "carlos@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=3" },
         { id: "u4", name: "Beatriz Souza", email: "beatriz@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=4" },
         { id: "u5", name: "João Pereira", email: "joao@empresa.com", role: "Member", avatar: "https://i.pravatar.cc/150?u=5" },
-      ].filter((user, index, self) => 
-        index === self.findIndex((u) => u.id === user.id) // Remove duplicatas
+      ];
+
+      setAllUsers(mockUsers.filter((user, index, self) => 
+        index === self.findIndex((u) => u.id === user.id)
       ));
     }
   }, [loggedInUser]);
@@ -127,7 +127,6 @@ export default function Teams() {
     }
   };
 
-  // Helper para obter o objeto User completo a partir do ID
   const getUserById = (userId: string) => allUsers.find(u => u.id === userId);
 
   return (
@@ -168,7 +167,7 @@ export default function Teams() {
               onEdit={() => handleEditTeam(team)}
               onDelete={() => handleDeleteTeam(team.id)}
               onManageMembers={() => handleManageMembers(team)}
-              allUsers={allUsers} // Passar todos os usuários para o TeamCard
+              allUsers={allUsers}
             />
           ))}
         </div>

@@ -3,15 +3,18 @@ import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
-import { PlusIcon, MoreDotIcon, CalenderIcon, TimeIcon, GroupIcon } from "../icons";
+import { PlusIcon, MoreDotIcon, TimeIcon, GroupIcon } from "../icons"; // Removido CalenderIcon
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 import Badge from "../components/ui/badge/Badge";
 import { useData, Project } from "../context/DataContext";
 
+// Definir o tipo BadgeColor localmente ou importar se estiver exportado
+type BadgeColor = "success" | "warning" | "error" | "light" | "brand";
+
 export default function Projects() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { projects, teams, addProject, updateProject, deleteProject, getProjectProgress } = useData(); // Adicionado 'teams'
+  const { projects, teams, addProject, updateProject, deleteProject, getProjectProgress } = useData();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("Todos");
   const [search, setSearch] = useState("");
@@ -21,7 +24,7 @@ export default function Projects() {
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectDate, setProjectDate] = useState("");
-  const [projectTeamId, setProjectTeamId] = useState<string>(""); // Alterado para teamId
+  const [projectTeamId, setProjectTeamId] = useState<string>("");
   const [projectStatus, setProjectStatus] = useState<Project["status"]>("Em Andamento");
 
   const filteredProjects = projects.filter((project) => {
@@ -42,7 +45,7 @@ export default function Projects() {
     setProjectName("");
     setProjectDesc("");
     setProjectDate("");
-    setProjectTeamId(""); // Resetar teamId
+    setProjectTeamId("");
     setProjectStatus("Em Andamento");
     openModal();
   };
@@ -53,7 +56,7 @@ export default function Projects() {
     setProjectName(project.name);
     setProjectDesc(project.description);
     setProjectDate(project.dueDate);
-    setProjectTeamId(project.teamId || ""); // Preencher teamId
+    setProjectTeamId(project.teamId || "");
     setProjectStatus(project.status);
     openModal();
   };
@@ -67,11 +70,11 @@ export default function Projects() {
   const handleSaveProject = () => {
     if (!projectName) return;
 
-    const projectData: Omit<Project, "id" | "teamName"> = { // teamName é derivado
+    const projectData: Omit<Project, "id" | "teamName"> = {
       name: projectName,
       description: projectDesc,
       status: projectStatus,
-      teamId: projectTeamId, // Usar teamId
+      teamId: projectTeamId,
       dueDate: projectDate,
     };
 
@@ -83,7 +86,7 @@ export default function Projects() {
     closeModal();
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): BadgeColor => { // Tipagem explícita do retorno
     switch (status) {
       case "Em Andamento": return "success";
       case "Concluído": return "success";
@@ -329,7 +332,7 @@ function ProjectCard({
   onClick: () => void; 
   onEdit: () => void; 
   onDelete: () => void; 
-  statusColor: string; 
+  statusColor: BadgeColor; // Usar o tipo correto
   progressColor: string 
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
