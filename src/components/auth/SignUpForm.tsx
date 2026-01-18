@@ -61,7 +61,7 @@ export default function SignUpForm() {
       <div className="w-full max-w-md mx-auto">
         <div className="mb-4 text-center sm:text-left">
           <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-white sm:text-2xl">
-            Crie sua conta 🚀
+            Crie sua conta
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Comece sua jornada gratuitamente.

@@ -48,7 +48,7 @@ export default function SignInForm() {
       <div className="flex flex-col justify-center flex-1 pt-10 sm:pt-0">
         <div className="mb-6 sm:mb-8 text-center sm:text-left">
           <h1 className="mb-2 text-2xl font-bold text-gray-800 dark:text-white sm:text-3xl">
-            Bem-vindo de volta! 👋
+            Bem-vindo de volta!
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Insira suas credenciais para acessar sua conta.
