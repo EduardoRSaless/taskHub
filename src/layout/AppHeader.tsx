@@ -80,21 +80,13 @@ const AppHeader: React.FC = () => {
                 />
               </svg>
             )}
-            {/* Cross Icon */}
           </button>
 
-          <Link to="/" className="lg:hidden">
+          <Link to="/" className="lg:hidden flex items-center gap-2">
             <img
-              className="dark:hidden"
-              src="/images/logo/logo.png"
-              alt="Logo"
-              width={150}
-            />
-            <img
-              className="hidden dark:block"
-              src="/images/logo/logo.png"
-              alt="Logo"
-              width={150}
+              src="/images/logo/auth-logo.png"
+              alt="TaskHub"
+              className="h-8 w-auto"
             />
           </Link>
 

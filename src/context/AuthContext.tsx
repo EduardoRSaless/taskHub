@@ -27,9 +27,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Usar variável de ambiente ou fallback para localhost
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 const API_URL = `${BASE_URL}/auth`;
 const USER_API_URL = `${BASE_URL}/users`;
+
+// Avatar padrão
+const DEFAULT_AVATAR = "/images/user/perfil.svg";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -62,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const userData = await res.json();
-      const userWithAvatar = { ...userData, avatar: userData.avatar || "https://i.pravatar.cc/150?u=default" };
+      const userWithAvatar = { ...userData, avatar: userData.avatar || DEFAULT_AVATAR };
       
       setUser(userWithAvatar);
       localStorage.setItem("auth_user", JSON.stringify(userWithAvatar));
@@ -89,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const userData = await res.json();
-      const userWithAvatar = { ...userData, avatar: "https://i.pravatar.cc/150?u=default" };
+      const userWithAvatar = { ...userData, avatar: DEFAULT_AVATAR };
 
       setUser(userWithAvatar);
       localStorage.setItem("auth_user", JSON.stringify(userWithAvatar));
@@ -120,8 +124,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!res.ok) throw new Error("Erro ao autenticar com backend");
 
       const userData = await res.json();
-      setUser(userData);
-      localStorage.setItem("auth_user", JSON.stringify(userData));
+      // Se o usuário já tiver avatar do Google, usa ele, senão usa o padrão
+      const userWithAvatar = { ...userData, avatar: userData.avatar || googleUser.photoURL || DEFAULT_AVATAR };
+      
+      setUser(userWithAvatar);
+      localStorage.setItem("auth_user", JSON.stringify(userWithAvatar));
     } catch (error) {
       console.error(error);
       throw error;

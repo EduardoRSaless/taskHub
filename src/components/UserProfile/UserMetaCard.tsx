@@ -6,7 +6,10 @@ import Label from "../form/Label";
 import { useAuth } from "../../context/AuthContext";
 import { Modal } from "../ui/modal";
 import { PencilIcon } from "../../icons";
-import ImageCropper from "../ui/ImageCropper"; // Importar o Cropper
+import { resizeImage } from "../../utils/imageUtils";
+import ImageCropper from "../ui/ImageCropper";
+
+const DEFAULT_AVATAR = "/images/user/perfil.svg";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -17,13 +20,12 @@ export default function UserMetaCard() {
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
 
-  const [selectedFile, setSelectedFile] = useState<string | null>(null); // Imagem original para crop
-  const [previewImage, setPreviewImage] = useState<string | null>(null); // Imagem final (cortada)
-  const [isCropping, setIsCropping] = useState(false); // Controle do modo crop
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Carregar dados do usuário
   useEffect(() => {
     if (user) {
       setName(user.name || "");
@@ -38,11 +40,10 @@ export default function UserMetaCard() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedFile(reader.result as string);
-        setIsCropping(true); // Ativar modo crop
+        setIsCropping(true);
       };
       reader.readAsDataURL(file);
     }
-    // Resetar input para permitir selecionar o mesmo arquivo novamente
     event.target.value = "";
   };
 
@@ -77,7 +78,6 @@ export default function UserMetaCard() {
     fileInputRef.current?.click();
   };
 
-  // Resetar estados ao fechar modal
   const handleCloseModal = () => {
     setPreviewImage(null);
     setSelectedFile(null);
@@ -94,7 +94,7 @@ export default function UserMetaCard() {
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="relative w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 group">
               <img 
-                src={user.avatar || "/images/user/owner.jpg"} 
+                src={user.avatar || DEFAULT_AVATAR}
                 alt="user" 
                 className="object-cover w-full h-full" 
               />
@@ -149,7 +149,7 @@ export default function UserMetaCard() {
               <div className="flex justify-center mb-6">
                 <div className="relative w-32 h-32 group cursor-pointer" onClick={triggerFileInput}>
                   <img
-                    src={previewImage || user.avatar || "/images/user/owner.jpg"}
+                    src={previewImage || user.avatar || DEFAULT_AVATAR}
                     alt="Preview"
                     className="w-full h-full rounded-full object-cover border-4 border-gray-100 dark:border-gray-700"
                   />
