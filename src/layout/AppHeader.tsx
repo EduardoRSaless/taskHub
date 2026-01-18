@@ -80,6 +80,7 @@ const AppHeader: React.FC = () => {
                 />
               </svg>
             )}
+            {/* Cross Icon */}
           </button>
 
           <Link to="/" className="lg:hidden flex items-center gap-2">
@@ -166,3 +167,4 @@ const AppHeader: React.FC = () => {
 };
 
 export default AppHeader;
+// Force update
