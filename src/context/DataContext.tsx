@@ -74,7 +74,8 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const API_URL = "http://localhost:3001/api";
+// Usar variável de ambiente ou fallback para localhost
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>([]);
