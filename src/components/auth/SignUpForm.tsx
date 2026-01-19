@@ -134,12 +134,12 @@ export default function SignUpForm() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="py-2 text-sm"
+                  className="py-2 text-sm pr-10" // Adicionado pr-10
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10 p-1" // Adicionado z-10 e p-1
                 >
                   {showPassword ? (
                     <EyeIcon className="size-4" />
