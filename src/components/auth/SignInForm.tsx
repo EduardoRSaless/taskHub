@@ -98,12 +98,12 @@ export default function SignInForm() {
                     placeholder="Sua senha segura"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="transition-all focus:ring-2 focus:ring-brand-500/20"
+                    className="transition-all focus:ring-2 focus:ring-brand-500/20 pr-10" // Adicionado pr-10 para não sobrepor o ícone
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 z-10 p-1" // Adicionado z-10 e padding
                   >
                     {showPassword ? (
                       <EyeIcon className="size-5" />

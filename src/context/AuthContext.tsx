@@ -27,12 +27,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Usar variável de ambiente ou fallback para localhost
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 const API_URL = `${BASE_URL}/auth`;
 const USER_API_URL = `${BASE_URL}/users`;
 
-// Avatar padrão
+
 const DEFAULT_AVATAR = "/images/user/perfil.svg";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
