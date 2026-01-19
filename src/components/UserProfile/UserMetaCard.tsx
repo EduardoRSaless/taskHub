@@ -6,7 +6,7 @@ import Label from "../form/Label";
 import { useAuth } from "../../context/AuthContext";
 import { Modal } from "../ui/modal";
 import { PencilIcon } from "../../icons";
-import { resizeImage } from "../../utils/imageUtils";
+// import { resizeImage } from "../../utils/imageUtils"; // Removido pois não é usado
 import ImageCropper from "../ui/ImageCropper";
 
 const DEFAULT_AVATAR = "/images/user/perfil.svg";
@@ -19,11 +19,11 @@ export default function UserMetaCard() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
-
+  
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState(false);
-
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function UserMetaCard() {
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="relative w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 group">
               <img 
-                src={user.avatar || DEFAULT_AVATAR}
+                src={user.avatar || DEFAULT_AVATAR} 
                 alt="user" 
                 className="object-cover w-full h-full" 
               />
@@ -138,30 +138,30 @@ export default function UserMetaCard() {
           </h3>
           
           {isCropping && selectedFile ? (
-            <ImageCropper
-              imageSrc={selectedFile}
-              onCropComplete={handleCropComplete}
-              onCancel={handleCancelCrop}
+            <ImageCropper 
+              imageSrc={selectedFile} 
+              onCropComplete={handleCropComplete} 
+              onCancel={handleCancelCrop} 
             />
           ) : (
             <>
               {/* Foto Preview */}
               <div className="flex justify-center mb-6">
                 <div className="relative w-32 h-32 group cursor-pointer" onClick={triggerFileInput}>
-                  <img
-                    src={previewImage || user.avatar || DEFAULT_AVATAR}
-                    alt="Preview"
+                  <img 
+                    src={previewImage || user.avatar || DEFAULT_AVATAR} 
+                    alt="Preview" 
                     className="w-full h-full rounded-full object-cover border-4 border-gray-100 dark:border-gray-700"
                   />
                   <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="text-white text-sm font-medium">Alterar</span>
                   </div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept="image/*" 
+                    className="hidden" 
                   />
                 </div>
               </div>
@@ -170,26 +170,26 @@ export default function UserMetaCard() {
               <div className="space-y-4">
                 <div>
                   <Label>Nome Completo</Label>
-                  <Input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                  <Input 
+                    type="text" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
                   />
                 </div>
                 <div>
                   <Label>Cargo / Papel</Label>
-                  <Input
-                    type="text"
-                    value={role}
-                    disabled
+                  <Input 
+                    type="text" 
+                    value={role} 
+                    disabled 
                     className="opacity-50 cursor-not-allowed"
                   />
                 </div>
                 <div>
                   <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={email}
+                  <Input 
+                    type="email" 
+                    value={email} 
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
