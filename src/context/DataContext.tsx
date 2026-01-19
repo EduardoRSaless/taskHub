@@ -74,8 +74,8 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Usar variável de ambiente ou fallback para localhost
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// Fallback para produção se a variável falhar
+const API_URL = import.meta.env.VITE_API_URL || "https://taskhub-backend-project.onrender.com/api";
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>([]);

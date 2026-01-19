@@ -27,10 +27,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// Fallback para produção se a variável falhar
+const BASE_URL = import.meta.env.VITE_API_URL || "https://taskhub-backend-project.onrender.com/api";
 const API_URL = `${BASE_URL}/auth`;
 const USER_API_URL = `${BASE_URL}/users`;
-
 
 const DEFAULT_AVATAR = "/images/user/perfil.svg";
 
@@ -123,11 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!res.ok) throw new Error("Erro ao autenticar com backend");
 
       const userData = await res.json();
-      // Se o usuário já tiver avatar do Google, usa ele, senão usa o padrão
-      const userWithAvatar = { ...userData, avatar: userData.avatar || googleUser.photoURL || DEFAULT_AVATAR };
-      
-      setUser(userWithAvatar);
-      localStorage.setItem("auth_user", JSON.stringify(userWithAvatar));
+      setUser(userData);
+      localStorage.setItem("auth_user", JSON.stringify(userData));
     } catch (error) {
       console.error(error);
       throw error;
