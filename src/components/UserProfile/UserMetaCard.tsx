@@ -6,7 +6,6 @@ import Label from "../form/Label";
 import { useAuth } from "../../context/AuthContext";
 import { Modal } from "../ui/modal";
 import { PencilIcon } from "../../icons";
-// import { resizeImage } from "../../utils/imageUtils"; // Removido pois não é usado
 import ImageCropper from "../ui/ImageCropper";
 
 const DEFAULT_AVATAR = "/images/user/perfil.svg";
