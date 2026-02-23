@@ -2,6 +2,7 @@ import { useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
+import ConfirmationModal from "../components/ui/modal/ConfirmationModal"; // Importar ConfirmationModal
 import { useModal } from "../hooks/useModal";
 import { PlusIcon, MoreDotIcon, TimeIcon, GroupIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
@@ -26,6 +27,10 @@ export default function Projects() {
   const [projectDate, setProjectDate] = useState("");
   const [projectTeamId, setProjectTeamId] = useState<string>("");
   const [projectStatus, setProjectStatus] = useState<Project["status"]>("Em Andamento");
+
+  // Estados para Modal de Exclusão
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
 
   const filteredProjects = projects.filter((project) => {
     const matchesFilter = filter === "Todos" || project.status === filter;
@@ -61,9 +66,18 @@ export default function Projects() {
     openModal();
   };
 
-  const handleDeleteProject = (id: string) => {
-    if (confirm("Tem certeza que deseja arquivar este projeto?")) {
-      deleteProject(id);
+  const handleDeleteClick = (id: string) => {
+    setProjectToDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (projectToDeleteId) {
+      await deleteProject(projectToDeleteId);
+      setIsDeleteModalOpen(false);
+      setProjectToDeleteId(null);
+      // Se estiver aberto no modal de detalhes, fecha também
+      if (isOpen) closeModal();
     }
   };
 
@@ -165,7 +179,7 @@ export default function Projects() {
                 progress={progress}
                 onClick={() => handleProjectClick(project)}
                 onEdit={() => handleEditProject(project)}
-                onDelete={() => handleDeleteProject(project.id)}
+                onDelete={() => handleDeleteClick(project.id)} // Usar handleDeleteClick
                 statusColor={getStatusColor(project.status)}
                 progressColor={getProgressBarColor(project.status)}
               />
@@ -175,7 +189,7 @@ export default function Projects() {
       </div>
 
       {/* Modal de Detalhes/Criação/Edição */}
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6">
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6 bg-white dark:bg-gray-900"> {/* Forçar bg dark */}
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
@@ -225,7 +239,13 @@ export default function Projects() {
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{selectedProject.teamName}</p>
               </div>
               
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-4 gap-3">
+                 <button
+                   onClick={() => handleDeleteClick(selectedProject.id)}
+                   className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
+                 >
+                   Arquivar
+                 </button>
                  <button 
                    onClick={() => handleEditProject(selectedProject)}
                    className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
@@ -280,10 +300,10 @@ export default function Projects() {
                     onChange={(e) => setProjectStatus(e.target.value as Project["status"])}
                     className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
                   >
-                    <option value="Em Andamento">Em Andamento</option>
-                    <option value="Concluído">Concluído</option>
-                    <option value="Pausado">Pausado</option>
-                    <option value="Atrasado">Atrasado</option>
+                    <option value="Em Andamento" className="dark:bg-gray-800">Em Andamento</option>
+                    <option value="Concluído" className="dark:bg-gray-800">Concluído</option>
+                    <option value="Pausado" className="dark:bg-gray-800">Pausado</option>
+                    <option value="Atrasado" className="dark:bg-gray-800">Atrasado</option>
                   </select>
                 </div>
               </div>
@@ -296,9 +316,9 @@ export default function Projects() {
                   onChange={(e) => setProjectTeamId(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
                 >
-                  <option value="">Nenhum Time</option>
+                  <option value="" className="dark:bg-gray-800">Nenhum Time</option>
                   {teams.map(team => (
-                    <option key={team.id} value={team.id}>{team.name}</option>
+                    <option key={team.id} value={team.id} className="dark:bg-gray-800">{team.name}</option>
                   ))}
                 </select>
               </div>
@@ -314,6 +334,16 @@ export default function Projects() {
           )}
         </div>
       </Modal>
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Arquivar Projeto"
+        message="Tem certeza que deseja arquivar este projeto? Esta ação não pode ser desfeita."
+        confirmText="Arquivar"
+      />
     </>
   );
 }

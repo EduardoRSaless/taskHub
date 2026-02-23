@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
+import ConfirmationModal from "../components/ui/modal/ConfirmationModal"; // Importar
 import { useModal } from "../hooks/useModal";
-import { PlusIcon, TrashBinIcon } from "../icons"; // Removidos ícones não usados
+import { PlusIcon, TrashBinIcon } from "../icons";
 import Badge from "../components/ui/badge/Badge";
 import { useData } from "../context/DataContext";
 import { User } from "../context/AuthContext";
@@ -28,6 +29,10 @@ export default function Permissions() {
   const [roleName, setRoleName] = useState("");
   const [roleDesc, setRoleDesc] = useState("");
   const [roleColor, setRoleColor] = useState("light");
+
+  // Estados para Modal de Exclusão
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ type: "role" | "user", id: string } | null>(null);
 
   // Roles
   const [rolesDisplay, setRolesDisplay] = useState<RoleDisplay[]>([
@@ -80,18 +85,38 @@ export default function Permissions() {
     openModal();
   };
 
-  const handleDeleteRole = (roleName: string) => {
+  const handleDeleteRoleClick = (roleName: string) => {
     if (roleName === "Admin") {
       alert("O papel Admin não pode ser excluído.");
       return;
     }
-    if (confirm(`Tem certeza que deseja excluir o papel "${roleName}"?`)) {
-      setRolesDisplay(prev => prev.filter(r => r.name !== roleName));
-      // Remover da matriz também
+    setItemToDelete({ type: "role", id: roleName });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleRemoveUserClick = (userId: string) => {
+    setItemToDelete({ type: "user", id: userId });
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    if (itemToDelete.type === "role") {
+      setRolesDisplay(prev => prev.filter(r => r.name !== itemToDelete.id));
       const newMatrix = { ...matrix };
-      delete newMatrix[roleName];
+      delete newMatrix[itemToDelete.id];
       saveMatrix(newMatrix);
+    } else if (itemToDelete.type === "user") {
+      try {
+        await deleteUser(itemToDelete.id);
+      } catch (error) {
+        console.error("Erro ao remover usuário:", error);
+        alert("Erro ao remover usuário.");
+      }
     }
+    setIsDeleteModalOpen(false);
+    setItemToDelete(null);
   };
 
   const handleSaveRole = () => {
@@ -128,17 +153,6 @@ export default function Permissions() {
     }
   };
 
-  const handleRemoveUser = async (userId: string) => {
-    if (confirm("Remover usuário?")) {
-      try {
-        await deleteUser(userId);
-      } catch (error) {
-        console.error("Erro ao remover usuário:", error);
-        alert("Erro ao remover usuário.");
-      }
-    }
-  };
-
   return (
     <>
       <PageMeta
@@ -156,12 +170,12 @@ export default function Permissions() {
           </nav>
         </div>
 
-        {activeTab === "roles" && <RolesTab roles={rolesWithCounts} onEdit={handleEditRole} onDelete={handleDeleteRole} onCreate={handleCreateRole} />}
+        {activeTab === "roles" && <RolesTab roles={rolesWithCounts} onEdit={handleEditRole} onDelete={handleDeleteRoleClick} onCreate={handleCreateRole} />}
         {activeTab === "matrix" && <PermissionMatrixTab roles={rolesDisplay.map(r => r.name)} matrix={matrix} onToggle={handleTogglePermission} />}
-        {activeTab === "users" && <UsersTab users={users} roles={rolesDisplay} onChangeRole={handleChangeUserRole} onRemove={handleRemoveUser} />}
+        {activeTab === "users" && <UsersTab users={users} roles={rolesDisplay} onChangeRole={handleChangeUserRole} onRemove={handleRemoveUserClick} />}
       </div>
 
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] p-6">
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] p-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col">
           <h3 className="mb-1 text-lg font-semibold text-gray-800 dark:text-white/90">{selectedRole ? "Editar Papel" : "Novo Papel"}</h3>
           <div className="space-y-4 mt-4">
@@ -172,6 +186,16 @@ export default function Permissions() {
           <div className="mt-6 flex gap-3"><button onClick={closeModal} className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">Cancelar</button><button onClick={handleSaveRole} className="flex-1 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Salvar</button></div>
         </div>
       </Modal>
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title={itemToDelete?.type === "role" ? "Excluir Papel" : "Remover Usuário"}
+        message={itemToDelete?.type === "role" ? "Tem certeza que deseja excluir este papel? Isso pode afetar usuários existentes." : "Tem certeza que deseja remover este usuário do sistema?"}
+        confirmText="Excluir"
+      />
     </>
   );
 }

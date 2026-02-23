@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
+import ConfirmationModal from "../components/ui/modal/ConfirmationModal"; // Importar
 import { useModal } from "../hooks/useModal";
 import { PlusIcon, GroupIcon, MoreDotIcon, UserIcon, CalenderIcon, TaskIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
-// import Badge from "../components/ui/badge/Badge"; // Removido Badge não usado
 import { useData, Team } from "../context/DataContext";
 import { User } from "../context/AuthContext";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +27,10 @@ export default function Teams() {
   const [teamToManageMembers, setTeamToManageMembers] = useState<Team | null>(null);
   const [userEmailToAdd, setUserEmailToAdd] = useState<string>("");
   const [memberActionError, setMemberActionError] = useState<string>("");
+
+  // Estados para Modal de Exclusão
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [teamToDeleteId, setTeamToDeleteId] = useState<string | null>(null);
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
@@ -70,9 +74,16 @@ export default function Teams() {
     openModal();
   };
 
-  const handleDeleteTeam = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este time?")) {
-      deleteTeam(id);
+  const handleDeleteClick = (id: string) => {
+    setTeamToDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (teamToDeleteId) {
+      await deleteTeam(teamToDeleteId);
+      setIsDeleteModalOpen(false);
+      setTeamToDeleteId(null);
     }
   };
 
@@ -165,7 +176,7 @@ export default function Teams() {
               team={team} 
               onClick={() => handleTeamClick(team)}
               onEdit={() => handleEditTeam(team)}
-              onDelete={() => handleDeleteTeam(team.id)}
+              onDelete={() => handleDeleteClick(team.id)}
               onManageMembers={() => handleManageMembers(team)}
               allUsers={allUsers}
             />
@@ -174,7 +185,7 @@ export default function Teams() {
       </div>
 
       {/* Modal de Detalhes/Criação/Edição de Time */}
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6">
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
@@ -282,7 +293,7 @@ export default function Teams() {
       </Modal>
 
       {/* Modal de Gerenciar Membros */}
-      <Modal isOpen={isMembersModalOpen} onClose={closeMembersModal} className="max-w-[500px] p-6">
+      <Modal isOpen={isMembersModalOpen} onClose={closeMembersModal} className="max-w-[500px] p-6 bg-white dark:bg-gray-900">
         <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
           Gerenciar Membros do Time: {teamToManageMembers?.name}
         </h3>
@@ -349,6 +360,16 @@ export default function Teams() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Excluir Time"
+        message="Tem certeza que deseja excluir este time? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+      />
     </>
   );
 }
