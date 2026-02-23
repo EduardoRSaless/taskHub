@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, useAuth } from "./AuthContext"; // Importar useAuth
+import { User, useAuth } from "./AuthContext";
 
 // --- Entidades ---
 
@@ -88,20 +88,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       // Construir URLs com filtro de usuário se estiver logado
-      // Para eventos, projetos e times, queremos filtrar pelo usuário?
-      // Eventos: SIM (privados)
-      // Projetos: Talvez (ou ver todos do time)
-      // Times: Ver todos ou só os que sou membro?
-      
-      // Por enquanto, vamos filtrar EVENTOS pelo userId
       const eventsUrl = user ? `${API_URL}/events?userId=${user.id}` : `${API_URL}/events`;
-      
-      // Projetos também podem ser filtrados se o backend suportar ?ownerId=... ou ?memberId=...
-      // Mas vamos manter global por enquanto se a lógica de negócio for "todos veem projetos da empresa"
+      const projectsUrl = user ? `${API_URL}/projects?ownerId=${user.id}` : `${API_URL}/projects`; // Filtrar projetos também!
       
       const [projectsRes, eventsRes, teamsRes, usersRes] = await Promise.all([
-        fetch(`${API_URL}/projects`),
-        fetch(eventsUrl), // Filtrando eventos!
+        fetch(projectsUrl), // Usando URL filtrada
+        fetch(eventsUrl),   // Usando URL filtrada
         fetch(`${API_URL}/teams`),
         fetch(`${API_URL}/users`)
       ]);
@@ -145,7 +137,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             status: e.status || e.extendedProps?.status || "pending",
             createdBy: e.createdBy || e.created_by,
             teamId: e.teamId || e.extendedProps?.teamId,
-            userId: e.userId || e.user_id // Garantir que temos o userId no evento
+            userId: e.userId || e.user_id
           }
         })));
       }
@@ -171,7 +163,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Recarregar dados quando o usuário mudar (logar/deslogar)
   useEffect(() => {
     fetchData();
-  }, [user]); // Adicionado dependência user
+  }, [user]);
 
   // --- Actions ---
 
