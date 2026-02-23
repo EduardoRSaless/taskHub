@@ -15,6 +15,7 @@ export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // Estado de sucesso
   const [isLoading, setIsLoading] = useState(false);
 
   const { signup, loginWithGoogle } = useAuth();
@@ -23,6 +24,7 @@ export default function SignUpForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     
     if (!isChecked) {
       setError("Aceite os termos.");
@@ -39,10 +41,12 @@ export default function SignUpForm() {
     try {
       const fullName = `${firstName} ${lastName}`;
       await signup(fullName, email, password);
-      navigate("/");
+      setSuccess("Conta criada com sucesso!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1500); // Delay para ver a mensagem
     } catch (err: any) {
       setError(err.message || "Erro ao criar conta.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -50,7 +54,10 @@ export default function SignUpForm() {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-      navigate("/");
+      setSuccess("Cadastro com Google realizado!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (err) {
       setError("Falha no cadastro com Google");
     }
@@ -153,6 +160,12 @@ export default function SignUpForm() {
             {error && (
               <div className="rounded bg-red-50 p-2 text-xs text-red-500 animate-shake">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded bg-green-50 p-2 text-xs text-green-500 animate-pulse">
+                {success}
               </div>
             )}
 
