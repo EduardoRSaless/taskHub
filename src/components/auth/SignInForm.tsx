@@ -14,6 +14,7 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // Estado de sucesso
   const [isLoading, setIsLoading] = useState(false);
 
   const { login, loginWithGoogle } = useAuth();
@@ -22,22 +23,29 @@ export default function SignInForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsLoading(true);
 
     try {
       await login(email, password);
-      navigate("/");
+      setSuccess("Login realizado com sucesso!");
+      // Pequeno delay para o usuário ver a mensagem
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (err) {
       setError("Email ou senha inválidos.");
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Só para o loading se der erro
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-      navigate("/");
+      setSuccess("Login com Google realizado!");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (err) {
       setError("Falha no login com Google");
     }
@@ -98,12 +106,12 @@ export default function SignInForm() {
                     placeholder="Sua senha segura"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="transition-all focus:ring-2 focus:ring-brand-500/20 pr-10" // Adicionado pr-10 para não sobrepor o ícone
+                    className="transition-all focus:ring-2 focus:ring-brand-500/20 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 z-10 p-1" // Adicionado z-10 e padding
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 z-10 p-1"
                   >
                     {showPassword ? (
                       <EyeIcon className="size-5" />
@@ -118,6 +126,12 @@ export default function SignInForm() {
             {error && (
               <div className="rounded-lg bg-red-50 p-3 text-sm text-red-500 dark:bg-red-900/10 dark:text-red-400 animate-shake">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded-lg bg-green-50 p-3 text-sm text-green-500 dark:bg-green-900/10 dark:text-green-400 animate-pulse">
+                {success}
               </div>
             )}
 
@@ -148,8 +162,6 @@ export default function SignInForm() {
               ) : "Entrar"}
             </Button>
           </form>
-
-          {/* Link "Não tem uma conta?" removido daqui pois está no AuthPage */}
         </div>
       </div>
     </div>
