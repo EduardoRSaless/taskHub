@@ -384,7 +384,7 @@ function ProjectCard({
           <Dropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} className="w-40 p-2 right-0 top-full">
             <DropdownItem 
               onItemClick={() => { setIsDropdownOpen(false); onEdit(); }}
-              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5"
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5 dark:text-gray-300" // Adicionado dark:text-gray-300
             >
               Editar
             </DropdownItem>

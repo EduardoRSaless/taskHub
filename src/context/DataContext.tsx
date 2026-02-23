@@ -310,7 +310,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
           teamId: event.extendedProps.teamId,
-          userId: user?.id // Associar ao usuário logado
+          createdBy: user?.id // Corrigido: enviar createdBy em vez de userId
         })
       });
       if (res.ok) fetchData();
@@ -334,7 +334,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
           teamId: event.extendedProps.teamId,
-          userId: event.extendedProps.userId // Manter o dono original
+          createdBy: event.extendedProps.createdBy // Manter o dono original
         })
       });
       if (res.ok) fetchData();

@@ -130,7 +130,7 @@ export default function UserMetaCard() {
         </div>
       </div>
 
-      <Modal isOpen={isOpen} onClose={handleCloseModal} className="max-w-[500px] p-6">
+      <Modal isOpen={isOpen} onClose={handleCloseModal} className="max-w-[500px] p-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col">
           <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90 text-center">
             {isCropping ? "Ajustar Foto" : "Editar Perfil"}

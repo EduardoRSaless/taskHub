@@ -22,7 +22,6 @@ export default function UserPreferencesCard() {
     const newView = e.target.value;
     setCalendarView(newView);
     localStorage.setItem("calendarDefaultView", newView);
-    // Disparar evento customizado para notificar outras abas/componentes se necessário
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -78,11 +77,11 @@ export default function UserPreferencesCard() {
             <select
               value={calendarView}
               onChange={handleCalendarViewChange}
-              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900" // Adicionado dark:bg-gray-900
             >
-              <option value="timeGridDay">Dia</option>
-              <option value="timeGridWeek">Semana</option>
-              <option value="dayGridMonth">Mês</option>
+              <option value="timeGridDay" className="dark:bg-gray-900">Dia</option>
+              <option value="timeGridWeek" className="dark:bg-gray-900">Semana</option>
+              <option value="dayGridMonth" className="dark:bg-gray-900">Mês</option>
             </select>
           </div>
 
@@ -93,11 +92,11 @@ export default function UserPreferencesCard() {
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900" // Adicionado dark:bg-gray-900
             >
-              <option value="Brasília (GMT-3)">Brasília (GMT-3)</option>
-              <option value="Lisboa (GMT+0)">Lisboa (GMT+0)</option>
-              <option value="New York (GMT-5)">New York (GMT-5)</option>
+              <option value="Brasília (GMT-3)" className="dark:bg-gray-900">Brasília (GMT-3)</option>
+              <option value="Lisboa (GMT+0)" className="dark:bg-gray-900">Lisboa (GMT+0)</option>
+              <option value="New York (GMT-5)" className="dark:bg-gray-900">New York (GMT-5)</option>
             </select>
           </div>
         </div>
@@ -120,7 +119,7 @@ export default function UserPreferencesCard() {
                     checked={notifications.email}
                     onChange={() => handleNotificationChange("email")}
                   />
-                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-500 peer-checked:after:translate-x-full peer-focus:outline-none dark:bg-gray-700"></div>
+                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-500 peer-checked:after:translate-x-full peer-focus:outline-none dark:bg-gray-700 dark:border-gray-600"></div>
                 </div>
               </label>
 
@@ -135,7 +134,7 @@ export default function UserPreferencesCard() {
                     checked={notifications.system}
                     onChange={() => handleNotificationChange("system")}
                   />
-                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-500 peer-checked:after:translate-x-full peer-focus:outline-none dark:bg-gray-700"></div>
+                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-500 peer-checked:after:translate-x-full peer-focus:outline-none dark:bg-gray-700 dark:border-gray-600"></div>
                 </div>
               </label>
             </div>

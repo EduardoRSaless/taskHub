@@ -362,7 +362,7 @@ export default function Calendar() {
               />
             </div>
 
-            {/* Seleção de Projeto */}
+
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 flex items-center gap-2">
                 <TaskIcon className="h-4 w-4 text-blue-500" />

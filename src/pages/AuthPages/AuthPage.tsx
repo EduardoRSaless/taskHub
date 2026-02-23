@@ -10,7 +10,6 @@ export default function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Sincronizar estado com a URL
   useEffect(() => {
     if (location.pathname === "/signup") {
       setIsSignUp(true);

@@ -227,7 +227,7 @@ export default function Teams() {
                   </div>
                   <button 
                     onClick={() => handleManageMembers(selectedTeam)}
-                    className="mt-3 text-xs font-medium text-brand-500 hover:text-brand-600"
+                    className="mt-3 text-xs font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400" // Adicionado dark:text-brand-400
                   >
                     Gerenciar Membros
                   </button>
@@ -399,13 +399,13 @@ function TeamCard({ team, onClick, onEdit, onDelete, onManageMembers, allUsers }
           <Dropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} className="w-40 p-2 right-0 top-full">
             <DropdownItem 
               onItemClick={() => { setIsDropdownOpen(false); onEdit(); }}
-              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5"
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5 dark:text-gray-300" // Adicionado dark:text-gray-300
             >
               Editar
             </DropdownItem>
             <DropdownItem 
               onItemClick={() => { setIsDropdownOpen(false); onManageMembers(); }}
-              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5"
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5 dark:text-gray-300" // Adicionado dark:text-gray-300
             >
               Gerenciar Membros
             </DropdownItem>

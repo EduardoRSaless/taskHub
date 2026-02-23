@@ -19,14 +19,14 @@ export default function Settings() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         {/* Menu Lateral */}
         <div className="lg:col-span-1">
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"> {/* Alterado para dark:bg-gray-900 */}
             <nav className="flex flex-col gap-2">
               <button
                 onClick={() => setActiveTab("general")}
                 className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "general"
                     ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
                 }`}
               >
                 <UserIcon className="h-5 w-5" />
@@ -37,7 +37,7 @@ export default function Settings() {
                 className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "calendar"
                     ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
                 }`}
               >
                 <CalenderIcon className="h-5 w-5" />
@@ -48,7 +48,7 @@ export default function Settings() {
                 className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "notifications"
                     ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
                 }`}
               >
                 <AlertIcon className="h-5 w-5" />
@@ -59,7 +59,7 @@ export default function Settings() {
                 className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === "permissions"
                     ? "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
                 }`}
               >
                 <LockIcon className="h-5 w-5" />
@@ -71,7 +71,7 @@ export default function Settings() {
 
         {/* Conteúdo Principal */}
         <div className="lg:col-span-3">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"> {/* Alterado para dark:bg-gray-900 */}
             {activeTab === "general" && <GeneralSettings />}
             {activeTab === "calendar" && <CalendarSettings />}
             {activeTab === "notifications" && <NotificationSettings />}
@@ -101,11 +101,11 @@ function GeneralSettings() {
           <select 
             value={language}
             onChange={(e) => setLanguage(e.target.value as "pt" | "en" | "es")}
-            className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900" // Removido bg-transparent, adicionado bg-white e dark:bg-gray-900
           >
-            <option value="pt">Português (Brasil)</option>
-            <option value="en">English (US)</option>
-            <option value="es">Español</option>
+            <option value="pt" className="dark:bg-gray-900">Português (Brasil)</option>
+            <option value="en" className="dark:bg-gray-900">English (US)</option>
+            <option value="es" className="dark:bg-gray-900">Español</option>
           </select>
         </div>
         
@@ -113,10 +113,10 @@ function GeneralSettings() {
           <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             Formato de Data
           </label>
-          <select className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500">
-            <option>DD/MM/AAAA (31/12/2023)</option>
-            <option>MM/DD/AAAA (12/31/2023)</option>
-            <option>AAAA-MM-DD (2023-12-31)</option>
+          <select className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900">
+            <option className="dark:bg-gray-900">DD/MM/AAAA (31/12/2023)</option>
+            <option className="dark:bg-gray-900">MM/DD/AAAA (12/31/2023)</option>
+            <option className="dark:bg-gray-900">AAAA-MM-DD (2023-12-31)</option>
           </select>
         </div>
       </div>
@@ -169,10 +169,10 @@ function CalendarSettings() {
           <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             Duração padrão de evento
           </label>
-          <select className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500">
-            <option>30 minutos</option>
-            <option>60 minutos</option>
-            <option>90 minutos</option>
+          <select className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900">
+            <option className="dark:bg-gray-900">30 minutos</option>
+            <option className="dark:bg-gray-900">60 minutos</option>
+            <option className="dark:bg-gray-900">90 minutos</option>
           </select>
         </div>
       </div>
@@ -222,11 +222,11 @@ function NotificationSettings() {
           <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             Lembrete padrão antes do evento
           </label>
-          <select className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500">
-            <option>10 minutos antes</option>
-            <option>30 minutos antes</option>
-            <option>1 hora antes</option>
-            <option>1 dia antes</option>
+          <select className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-500 dark:bg-gray-900">
+            <option className="dark:bg-gray-900">10 minutos antes</option>
+            <option className="dark:bg-gray-900">30 minutos antes</option>
+            <option className="dark:bg-gray-900">1 hora antes</option>
+            <option className="dark:bg-gray-900">1 dia antes</option>
           </select>
         </div>
       </div>
