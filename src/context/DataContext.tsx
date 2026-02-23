@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { User, useAuth } from "./AuthContext"; // Importar useAuth
 
 // --- Entidades ---
 
@@ -40,9 +41,6 @@ export interface CalendarEvent {
   };
 }
 
-// Importar User do AuthContext para usar no DataContext
-import { User } from "./AuthContext";
-
 interface DataContextType {
   projects: Project[];
   teams: Team[];
@@ -74,10 +72,11 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Fallback para produção se a variável falhar
+// Usar variável de ambiente ou fallback para localhost
 const API_URL = import.meta.env.VITE_API_URL || "https://taskhub-backend-project.onrender.com/api";
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth(); // Pegar o usuário logado
   const [projects, setProjects] = useState<Project[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -88,9 +87,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchData = async () => {
     setLoading(true);
     try {
+      // Construir URLs com filtro de usuário se estiver logado
+      // Para eventos, projetos e times, queremos filtrar pelo usuário?
+      // Eventos: SIM (privados)
+      // Projetos: Talvez (ou ver todos do time)
+      // Times: Ver todos ou só os que sou membro?
+      
+      // Por enquanto, vamos filtrar EVENTOS pelo userId
+      const eventsUrl = user ? `${API_URL}/events?userId=${user.id}` : `${API_URL}/events`;
+      
+      // Projetos também podem ser filtrados se o backend suportar ?ownerId=... ou ?memberId=...
+      // Mas vamos manter global por enquanto se a lógica de negócio for "todos veem projetos da empresa"
+      
       const [projectsRes, eventsRes, teamsRes, usersRes] = await Promise.all([
         fetch(`${API_URL}/projects`),
-        fetch(`${API_URL}/events`),
+        fetch(eventsUrl), // Filtrando eventos!
         fetch(`${API_URL}/teams`),
         fetch(`${API_URL}/users`)
       ]);
@@ -133,7 +144,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             projectId: e.projectId || e.project_id || e.extendedProps?.projectId,
             status: e.status || e.extendedProps?.status || "pending",
             createdBy: e.createdBy || e.created_by,
-            teamId: e.teamId || e.extendedProps?.teamId
+            teamId: e.teamId || e.extendedProps?.teamId,
+            userId: e.userId || e.user_id // Garantir que temos o userId no evento
           }
         })));
       }
@@ -156,9 +168,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Recarregar dados quando o usuário mudar (logar/deslogar)
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user]); // Adicionado dependência user
 
   // --- Actions ---
 
@@ -173,7 +186,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: project.status,
           team: project.teamId ? { id: project.teamId } : null,
           dueDate: project.dueDate,
-          ownerId: project.ownerId
+          ownerId: user?.id // Associar ao usuário logado
         })
       });
       if (res.ok) fetchData();
@@ -304,7 +317,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: event.extendedProps.description,
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
-          teamId: event.extendedProps.teamId
+          teamId: event.extendedProps.teamId,
+          userId: user?.id // Associar ao usuário logado
         })
       });
       if (res.ok) fetchData();
@@ -327,7 +341,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: event.extendedProps.description,
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
-          teamId: event.extendedProps.teamId
+          teamId: event.extendedProps.teamId,
+          userId: event.extendedProps.userId // Manter o dono original
         })
       });
       if (res.ok) fetchData();
