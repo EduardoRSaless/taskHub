@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal } from "./index";
 import Button from "../button/Button";
 import { AlertIcon } from "../../../icons";
@@ -25,7 +24,7 @@ export default function ConfirmationModal({
   isLoading = false,
 }: ConfirmationModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-[400px] p-6">
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-[400px] p-6 bg-white dark:bg-gray-900">
       <div className="flex flex-col items-center text-center">
         <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-red-50 dark:bg-red-900/20">
           <AlertIcon className="w-6 h-6 text-red-500" />
