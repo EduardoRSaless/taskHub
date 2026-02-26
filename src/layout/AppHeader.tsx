@@ -23,7 +23,6 @@ const AppHeader: React.FC = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
 
-  // inputRef e useEffect para atalho de teclado podem ser removidos se a barra de pesquisa for totalmente removida
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
