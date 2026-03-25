@@ -68,8 +68,6 @@ interface DataContextType {
 
   getProjectProgress: (projectId: string) => number;
   getEventsByUser: (userId: string) => CalendarEvent[];
-  
-  notifications: any[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -84,7 +82,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [users, setUsers] = useState<User[]>([]); // Novo estado para usuários
   const [loading, setLoading] = useState(true);
-  const [notifications, setNotifications] = useState<any[]>([]);
 
   // --- Fetch Data ---
   const fetchData = async () => {
@@ -92,11 +89,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Construir URLs com filtro de usuário se estiver logado
       const eventsUrl = user ? `${API_URL}/events?userId=${user.id}` : `${API_URL}/events`;
-      const projectsUrl = user ? `${API_URL}/projects?ownerId=${user.id}` : `${API_URL}/projects`;
+      const projectsUrl = user ? `${API_URL}/projects?ownerId=${user.id}` : `${API_URL}/projects`; // Filtrar projetos também!
       
       const [projectsRes, eventsRes, teamsRes, usersRes] = await Promise.all([
-        fetch(projectsUrl),
-        fetch(eventsUrl),
+        fetch(projectsUrl), // Usando URL filtrada
+        fetch(eventsUrl),   // Usando URL filtrada
         fetch(`${API_URL}/teams`),
         fetch(`${API_URL}/users`)
       ]);
@@ -437,7 +434,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addTeam, updateTeam, deleteTeam, addMemberToTeam, removeMemberFromTeam,
       addEvent, updateEvent, deleteEvent, toggleEventCompletion,
       updateUserRole, deleteUser,
-      getProjectProgress, getEventsByUser, notifications
+      getProjectProgress, getEventsByUser
     }}>
       {children}
     </DataContext.Provider>
