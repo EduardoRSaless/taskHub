@@ -68,6 +68,8 @@ interface DataContextType {
 
   getProjectProgress: (projectId: string) => number;
   getEventsByUser: (userId: string) => CalendarEvent[];
+  
+  notifications: any[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -82,6 +84,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [users, setUsers] = useState<User[]>([]); // Novo estado para usuários
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   // --- Fetch Data ---
   const fetchData = async () => {
@@ -89,28 +92,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Construir URLs com filtro de usuário se estiver logado
       const eventsUrl = user ? `${API_URL}/events?userId=${user.id}` : `${API_URL}/events`;
-      const projectsUrl = user ? `${API_URL}/projects?ownerId=${user.id}` : `${API_URL}/projects`; // Filtrar projetos também!
+      const projectsUrl = user ? `${API_URL}/projects?ownerId=${user.id}` : `${API_URL}/projects`;
       
       const [projectsRes, eventsRes, teamsRes, usersRes] = await Promise.all([
-        fetch(projectsUrl), // Usando URL filtrada
-        fetch(eventsUrl),   // Usando URL filtrada
+        fetch(projectsUrl),
+        fetch(eventsUrl),
         fetch(`${API_URL}/teams`),
         fetch(`${API_URL}/users`)
       ]);
 
       if (teamsRes.ok) {
         const teamsData = await teamsRes.json();
-        setTeams(teamsData.map((t: any) => ({
+        const mappedTeams = teamsData.map((t: any) => ({
           id: t.id,
           name: t.name,
           description: t.description,
           members: t.members ? t.members.map((m: any) => m.id) : []
-        })));
+        }));
+        // Filtra times para mostrar APENAS os que o usuário logado é membro
+        setTeams(user ? mappedTeams.filter((t: Team) => t.members.includes(user.id)) : mappedTeams);
       }
 
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
-        setProjects(projectsData.map((p: any) => ({
+        const mappedProjects = projectsData.map((p: any) => ({
           id: p.id,
           name: p.name,
           description: p.description,
@@ -119,7 +124,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           teamName: p.team ? p.team.name : "Sem Time",
           dueDate: p.dueDate ? p.dueDate : (p.due_date ? p.due_date.split('T')[0] : ''),
           ownerId: p.ownerId || p.owner_id
-        })));
+        }));
+        // Garantia de segurança no Frontend para mostrar apenas projetos do usuário
+        setProjects(user ? mappedProjects.filter((p: Project) => p.ownerId === user.id) : mappedProjects);
       }
 
       if (eventsRes.ok) {
@@ -162,7 +169,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Recarregar dados quando o usuário mudar (logar/deslogar)
   useEffect(() => {
-    fetchData();
+    if (user) {
+      fetchData();
+    }
   }, [user]);
 
   // --- Actions ---
@@ -198,7 +207,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: project.status,
           team: project.teamId ? { id: project.teamId } : null,
           dueDate: project.dueDate,
-          ownerId: project.ownerId
+          ownerId: project.ownerId // IMPORTANTE: Manter o dono original ao atualizar
         })
       });
       if (res.ok) fetchData();
@@ -226,7 +235,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: team.description
         })
       });
-      if (res.ok) fetchData();
+      if (res.ok) {
+        const newTeam = await res.json();
+        // Se criou o time, adiciona o próprio criador como membro automaticamente
+        if (user && user.email) {
+          await fetch(`${API_URL}/teams/${newTeam.id}/members`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+          });
+        }
+        fetchData();
+      }
     } catch (error) {
       console.error("Erro ao criar time:", error);
     }
@@ -310,7 +330,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
           teamId: event.extendedProps.teamId,
-          createdBy: user?.id // Corrigido: enviar createdBy em vez de userId
+          createdBy: user?.id
         })
       });
       if (res.ok) fetchData();
@@ -334,7 +354,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           projectId: event.extendedProps.projectId,
           status: event.extendedProps.status,
           teamId: event.extendedProps.teamId,
-          createdBy: event.extendedProps.createdBy // Manter o dono original
+          createdBy: event.extendedProps.createdBy
         })
       });
       if (res.ok) fetchData();
@@ -417,7 +437,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addTeam, updateTeam, deleteTeam, addMemberToTeam, removeMemberFromTeam,
       addEvent, updateEvent, deleteEvent, toggleEventCompletion,
       updateUserRole, deleteUser,
-      getProjectProgress, getEventsByUser
+      getProjectProgress, getEventsByUser, notifications
     }}>
       {children}
     </DataContext.Provider>

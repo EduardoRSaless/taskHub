@@ -2,25 +2,26 @@ import { useState } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
 import { Modal } from "../components/ui/modal";
-import ConfirmationModal from "../components/ui/modal/ConfirmationModal"; // Importar ConfirmationModal
+import ConfirmationModal from "../components/ui/modal/ConfirmationModal";
 import { useModal } from "../hooks/useModal";
 import { PlusIcon, MoreDotIcon, TimeIcon, GroupIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 import Badge from "../components/ui/badge/Badge";
 import { useData, Project } from "../context/DataContext";
+import { useAuth } from "../context/AuthContext";
 
-// Definir o tipo BadgeColor compatível com o componente Badge
 type BadgeColor = "primary" | "success" | "error" | "warning" | "info" | "light" | "dark";
 
 export default function Projects() {
   const { isOpen, openModal, closeModal } = useModal();
   const { projects, teams, addProject, updateProject, deleteProject, getProjectProgress } = useData();
+  const { user } = useAuth();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("Todos");
   const [search, setSearch] = useState("");
 
-  // Estados do Formulário de Criação/Edição
+  // Estados do Formulário
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
@@ -28,14 +29,20 @@ export default function Projects() {
   const [projectTeamId, setProjectTeamId] = useState<string>("");
   const [projectStatus, setProjectStatus] = useState<Project["status"]>("Em Andamento");
 
-  // Estados para Modal de Exclusão
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
 
+  // No DataContext já filtramos para mostrar apenas os projetos onde ownerId === user.id
+  // Mas vamos garantir a filtragem local também
   const filteredProjects = projects.filter((project) => {
+    // Filtro principal de segurança: se o projeto tiver ownerId, deve ser o do usuário
+    const isOwner = !project.ownerId || project.ownerId === user?.id;
+    
+    // Filtros de UI
     const matchesFilter = filter === "Todos" || project.status === filter;
     const matchesSearch = project.name.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    
+    return isOwner && matchesFilter && matchesSearch;
   });
 
   const handleProjectClick = (project: Project) => {
@@ -76,7 +83,6 @@ export default function Projects() {
       await deleteProject(projectToDeleteId);
       setIsDeleteModalOpen(false);
       setProjectToDeleteId(null);
-      // Se estiver aberto no modal de detalhes, fecha também
       if (isOpen) closeModal();
     }
   };
@@ -90,10 +96,18 @@ export default function Projects() {
       status: projectStatus,
       teamId: projectTeamId,
       dueDate: projectDate,
+      // Se estamos editando, não mandamos o ownerId aqui, o DataContext vai usar o dono original
     };
 
     if (projectId) {
-      updateProject({ ...projectData, id: projectId, teamName: teams.find(t => t.id === projectTeamId)?.name || "Sem Time" });
+      // Passando o dono original para não perder o projeto
+      const originalOwner = projects.find(p => p.id === projectId)?.ownerId;
+      updateProject({ 
+        ...projectData, 
+        id: projectId, 
+        teamName: teams.find(t => t.id === projectTeamId)?.name || "Sem Time",
+        ownerId: originalOwner 
+      });
     } else {
       addProject(projectData);
     }
@@ -129,7 +143,6 @@ export default function Projects() {
       <PageBreadcrumb pageTitle="Projetos" />
 
       <div className="space-y-6">
-        {/* Header: Filtros e Ações */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
             {["Todos", "Em Andamento", "Concluído", "Pausado", "Atrasado"].map((f) => (
@@ -168,7 +181,6 @@ export default function Projects() {
           </div>
         </div>
 
-        {/* Grid de Projetos */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredProjects.map((project) => {
             const progress = getProjectProgress(project.id);
@@ -179,7 +191,7 @@ export default function Projects() {
                 progress={progress}
                 onClick={() => handleProjectClick(project)}
                 onEdit={() => handleEditProject(project)}
-                onDelete={() => handleDeleteClick(project.id)} // Usar handleDeleteClick
+                onDelete={() => handleDeleteClick(project.id)}
                 statusColor={getStatusColor(project.status)}
                 progressColor={getProgressBarColor(project.status)}
               />
@@ -188,8 +200,7 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Modal de Detalhes/Criação/Edição */}
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6 bg-white dark:bg-gray-900"> {/* Forçar bg dark */}
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] p-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
@@ -204,7 +215,6 @@ export default function Projects() {
           </div>
 
           {selectedProject ? (
-            // MODO VISUALIZAÇÃO (Detalhes)
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <Badge color={getStatusColor(selectedProject.status)}>{selectedProject.status}</Badge>
@@ -255,7 +265,6 @@ export default function Projects() {
               </div>
             </div>
           ) : (
-            // MODO EDIÇÃO / CRIAÇÃO
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -335,7 +344,6 @@ export default function Projects() {
         </div>
       </Modal>
 
-      {/* Modal de Confirmação */}
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -362,7 +370,7 @@ function ProjectCard({
   onClick: () => void; 
   onEdit: () => void; 
   onDelete: () => void; 
-  statusColor: BadgeColor; // Usar o tipo correto
+  statusColor: BadgeColor;
   progressColor: string 
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -384,7 +392,7 @@ function ProjectCard({
           <Dropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} className="w-40 p-2 right-0 top-full">
             <DropdownItem 
               onItemClick={() => { setIsDropdownOpen(false); onEdit(); }}
-              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5 dark:text-gray-300" // Adicionado dark:text-gray-300
+              className="rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/5 dark:text-gray-300"
             >
               Editar
             </DropdownItem>
@@ -407,7 +415,7 @@ function ProjectCard({
 
       <div className="space-y-4 mt-auto">
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>{project.teamName}</span> {/* Usar teamName */}
+          <span>{project.teamName}</span>
           <span>{project.dueDate}</span>
         </div>
 
